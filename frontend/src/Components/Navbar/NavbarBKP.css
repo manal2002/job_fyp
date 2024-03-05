@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;1,9..40,300&family=Inter:wght@300;400;500&family=Poppins:wght@500&family=Rubik:wght@500&display=swap');
+
+li.nav-item a{
+    color: red;
+    font-size: 19px;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 500;
+}
+ul li{
+    margin-left: 40px;
+}
+.navbar-brand{
+    font-size: 30px;
+    font-weight: 600;
+    color: green;
+}
+button.SigninBtn{
+    padding: 9px;
+    width: 150px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    color: white;
+    background-color: #7fb230;
+    font-family: 'Rubik', sans-serif;
+}
+.landing-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+  }
+  
+.title h2{
+    font-size: 60px;
+    font-weight: bold;
+    color: #111;
+    font-family: 'Rubik', sans-serif;
+    /* top: 80%;
+    left: 5%;
+    position: relative; */
+    text-align: center;
+}
+.title span{
+    color: #7fb230;
+    font-size: 60px;
+}
+button.submitBtn{
+    width: 100%;
+    padding: 8px;
+    background-color: darkcyan;
+    color: white;
+    border: none;
+    outline: none;
+}
+h5.modal-title{
+    display: flex;
+    justify-content: center;
+    left: 40%;
+    position: relative;
+    color: #111;
+    font-family: 'Rubik', sans-serif;
+}
+.modal-header {
+    border-bottom: none;
+}
