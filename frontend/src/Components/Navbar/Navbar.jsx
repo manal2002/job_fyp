@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./Navbar.css";
+import JobSeekerSidebar from "../Sidebar/Jobseekersidebar";
+
 function Navbar() {
   const [userData, setUserData] = useState(
     JSON.parse(localStorage.getItem("userData"))
@@ -24,14 +26,14 @@ function Navbar() {
               <a href="/">Home</a>
             </li>
             <li>
-              <a href="/alljobs">Jobs</a>
+              <a href="/alljobs">Find Jobs</a>
             </li>
-            <li>
+            {/* <li>
               <a href="/myjobs">My jobs</a>
             </li>
             <li>
               <a href="#">Interviews</a>
-            </li>
+            </li> */}
 
             {!userData ? (
               <>
@@ -82,8 +84,12 @@ function Navbar() {
           <h1 class="logo">CareerLinker</h1>
         </div>
       </nav>
+      
     </div>
   );
 }
 
 export default Navbar;
+
+
+

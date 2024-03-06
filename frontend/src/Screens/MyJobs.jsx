@@ -6,6 +6,7 @@ import OutlinedCard from "../Components/Card/Card";
 import axios from "axios";
 import API_ENDPOINTS from "../Api";
 import Loader from "../Components/Loader";
+import JobSeekerSidebar from "../Components/Sidebar/Jobseekersidebar";
 
 function MyJobs() {
   const [savedJobs, setSavedJobs] = useState([]);
@@ -36,8 +37,16 @@ function MyJobs() {
     <div className="myjobs">
       <Navbar />
       <div className="container">
+      <JobSeekerSidebar />
         <div className="card-lg p-3 mt-5">
-          <h4>My Jobs</h4>
+          <br></br>
+          <br></br>
+          <br></br>
+          <br></br>
+          <br></br>
+
+
+          <h4>Applied Jobs</h4>
           <div className="mt-4">
             <Tabs>
               <TabList>
