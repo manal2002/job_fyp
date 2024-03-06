@@ -8,6 +8,7 @@ import axios from "axios";
 import API_ENDPOINTS from "../Api";
 import Loader from "../Components/Loader";
 import EditIcon from "@mui/icons-material/Edit";
+import JobSeekerSidebar from "../Components/Sidebar/Jobseekersidebar";
 
 function Profile() {
   const { id } = useParams();
@@ -77,6 +78,7 @@ function Profile() {
     <div style={{ backgroundColor: "whitesmoke" }}>
       <Navbar />
       <div className="container">
+      <JobSeekerSidebar />
         {loading ? (
           <Loader />
         ) : (
