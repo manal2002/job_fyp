@@ -17,12 +17,13 @@ import Loader from "../Loader";
 import ClickableLinkChips from "../Chips/ClickableLinkChips";
 import Swal from "sweetalert2";
 
+
 const bull = (
   <Box
     component="span"
     sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
   >
-    •
+    .
   </Box>
 );
 
@@ -93,6 +94,9 @@ export default function JobDetail() {
     window.location.href = `/login`;
   };
 
+
+
+
   return (
     <div
       className="mt-5 .job-details-page"
@@ -158,20 +162,21 @@ export default function JobDetail() {
                   {job?.experienceLevel}
                 </h5>
                 <h4>
-                  {job?.skills_and_requirement && (
+                  {job?.jobSkills && (
                     <>
                       <span style={{ fontWeight: "bold", fontSize: "20px" }}>
                         Skills Required{" "}
                       </span>
                       <ClickableLinkChips
                         className="mt-5"
-                        skills={job?.skills_and_requirement?.split(",")}
+                        skills={job?.jobSkills?.split(",")}
                       />
                     </>
                   )}
 
                   {/* <ClickableLinkChips skills={job?.ski} /> */}
                 </h4>
+
                 <div className="mt-4">
                   <Stack direction="row" spacing={1}>
                     {job?.skillsRequired &&
@@ -183,6 +188,24 @@ export default function JobDetail() {
                       ))}
                   </Stack>
                 </div>
+
+                <h5>
+                  {job?.jobRequirements && (
+                    <>
+                      <span style={{ fontWeight: "bold", fontSize: "20px" }}>
+                        Job Requirements{" "}
+                      </span>
+                      <ClickableLinkChips
+                        className="mt-5"
+                        skills={job?.jobRequirements?.split(",")}
+                      />
+                    </>
+                  )}
+
+                  {/* <ClickableLinkChips skills={job?.ski} /> */}
+                </h5>
+
+                
               </div>
 
               <div className="mt-3">
@@ -200,4 +223,7 @@ export default function JobDetail() {
       )}
     </div>
   );
-}
+};
+
+
+

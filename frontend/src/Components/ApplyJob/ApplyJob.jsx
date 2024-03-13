@@ -13,6 +13,7 @@ import axios from "axios";
 import API_ENDPOINTS from "../../Api";
 import Swal from "sweetalert2";
 
+
 const steps = ["Step 1", "Step 2", "Verification"];
 
 const ApplyJob = () => {
@@ -39,6 +40,8 @@ const ApplyJob = () => {
   });
 
   const [newResume, setNewResume] = useState(false);
+  const [userId, setUserId] = useState(null);
+
 
   const handleRadioChange = (e) => {
     setNewResume(e.target.value === "true");
@@ -70,15 +73,32 @@ const ApplyJob = () => {
     }
   };
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     console.log("ID-----------", id);
+  //     await axios
+  //       .get(API_ENDPOINTS.getProfile + `/${userData?._id}`)
+  //       .then((resp) => {
+  //         console.log("RESP OF USER---------", resp?.data?.data);
+  //       });
+  //   };
+  //   fetchData();
+  // }, []);
+
   useEffect(() => {
     const fetchData = async () => {
-      console.log("ID-----------", id);
-      await axios
-        .get(API_ENDPOINTS.getProfile + `/${userData?._id}`)
-        .then((resp) => {
-          console.log("RESP OF USER---------", resp?.data?.data);
-        });
+      try {
+        const response = await axios.get(API_ENDPOINTS.getProfile + `/${userData?._id}`);
+        const userData = response?.data?.data;
+        console.log("User data:", userData);
+
+        // Set the user ID in component state
+        setUserId(userData?._id);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
     };
+
     fetchData();
   }, []);
 
@@ -102,33 +122,84 @@ const ApplyJob = () => {
 
   const handleSubmit = async () => {
     setProcessing(true);
+
+    // Extract jobId from the URL
+    const jobId = id; // id comes from useParams()
+
+    
+    const userId = userData._id;
+
     // Access all entered values in formData object
-    formData.jobId = "65601528dbb411088aefe12d";
-    formData.companyId = "6561fe0e9171f68b9d4b9cf1";
+    formData.userId = userId;
+
+    // Access all entered values in formData object
+    //formData.userId = userId;
     formData.my_resume = uploadedFilename ? uploadedFilename : "";
     console.log("Form Data:", formData);
-    await axios
-      .post(API_ENDPOINTS.applyJob, { data: formData })
-      .then((resp) => {
-        if (resp && resp.status == 200) {
-          setProcessing(false);
-          Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: "Job applied successfully.",
-          }).then(() => {
-            window.location.href = "/alljobs";
-          });
+
+    try {
+        const response = await axios.post(API_ENDPOINTS.applyJob, { data: { ...formData, jobId, userId } });
+        if (response && response.status === 200) {
+            setProcessing(false);
+            Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: "Job applied successfully.",
+            }).then(() => {
+                window.location.href = "/alljobs";
+            });
         } else {
-          Swal.fire({
+            Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: "Something went wrong.",
+            });
+        }
+    } catch (error) {
+        console.error("Error applying for job:", error);
+        Swal.fire({
             icon: "error",
             title: "Error!",
-            text: "Something went wrong.",
-          });
-        }
-      });
+            text: "An error occurred while applying for the job.",
+        });
+    }
+  
+
+ };
+
+  // const handleSubmit = async () => {
+  //   setProcessing(true);
+  //   // Access all entered values in formData object
+  //   //formData.jobId = "65601528dbb411088aefe12d";
+  //   //formData.companyId = "6561fe0e9171f68b9d4b9cf1";
+  //   formData.userId = userId;
+  //   formData.my_resume = uploadedFilename ? uploadedFilename : "";
+  //   console.log("Form Data:", formData);
+  //   await axios
+  //     .post(API_ENDPOINTS.applyJob, { data: formData })
+  //     .then((resp) => {
+  //       if (resp && resp.status == 200) {
+  //         setProcessing(false);
+  //         Swal.fire({
+  //           icon: "success",
+  //           title: "Success!",
+  //           text: "Job applied successfully.",
+  //         }).then(() => {
+  //           window.location.href = "/alljobs";
+  //         });
+  //       } else {
+  //         Swal.fire({
+  //           icon: "error",
+  //           title: "Error!",
+  //           text: "Something went wrong.",
+  //         });
+  //       }
+  //     });
     // Add your logic to submit the form data
-  };
+
+    
+
+  
 
   return (
     <div className="mt-5" style={{ top: "50px", position: "relative" }}>

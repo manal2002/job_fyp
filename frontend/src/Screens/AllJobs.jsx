@@ -6,6 +6,7 @@ import axios from "axios";
 import API_ENDPOINTS from "../Api";
 import Loader from "../Components/Loader";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import JobSeekerSidebar from "../Components/Sidebar/Jobseekersidebar";
 
 function AllJobs() {
   const [jobs, setJobs] = useState([]);
@@ -55,10 +56,14 @@ function AllJobs() {
   };
 
   return (
-    <div style={{ backgroundColor: "whitesmoke" }}>
+    <>
+    
+    <div className="main-content-wrapper" style={{ backgroundColor: "whitesmoke" }}></div>
+    {/* <div style={{ backgroundColor: "whitesmoke" }}> */}
       <Navbar />
       <div className="mt-5">
         <div className="container-fluid">
+        <JobSeekerSidebar />
           <div class="overlay" style={{ display: "none" }}></div>
           <div class="search-section">
             <div class="container-fluid container-xl">
@@ -79,6 +84,7 @@ function AllJobs() {
                 </button>
               </div>
               <div class="row main-content ml-md-0 mt-4">
+              
                 <div class="sidebar col-md-3 px-0">
                   <h1 class="border-bottom filter-header d-flex d-md-none p-3 mb-0 align-items-center">
                     <span class="mr-2 filter-close-btn">X</span>
@@ -372,7 +378,8 @@ function AllJobs() {
           </div>
         </div>
       </div>
-    </div>
+  
+    </>
   );
 }
 

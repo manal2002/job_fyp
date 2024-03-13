@@ -9,6 +9,7 @@ import API_ENDPOINTS from "../../Api";
 import { useParams } from "react-router-dom";
 import { DEFAULT_PROFILE_IMAGE } from "../../constants/url";
 import Swal from "sweetalert2";
+import JobSeekerSidebar from "../../Components/Sidebar/Jobseekersidebar";
 
 const steps = ["Basic Information", "Experience", "Skills"];
 const EditProfile = () => {
@@ -208,6 +209,7 @@ const EditProfile = () => {
       )}
       <Navbar />
       <div className="container">
+        <JobSeekerSidebar/>
         <div className="card mt-5" style={{ height: "auto",top:"40px",position:"relative" }}>
           <div className="container p-2 mt-5">
             {/* <h4 className="mt-2">Update your profile</h4> */}

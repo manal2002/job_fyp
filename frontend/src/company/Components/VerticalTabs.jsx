@@ -15,16 +15,21 @@ const VerticalTabs = () => {
   return (
     <>
       <div>
-        <Tabs className="vertical-tabs">
+        <Tabs className="vertical-tabs" style={{ backgroundColor: "white",  overflowY: "auto" , width: "100%"}} >
           <TabList className="vertical-tab-list mt-5">
-            <div className="container">
+            <br/>
+            <br/>
+            <br/>
+            
+
+            {/* <div className="container">
               <img
-                src={process.env.PUBLIC_URL + "/brand1.png"}
-                alt="Example"
-                className=" w-50"
-                style={{left:"35px",position:"relative"}}
+                // src={process.env.PUBLIC_URL + "/brand1.png"}
+                // alt="Example"
+                // className=" w-50"
+                // style={{left:"35px",position:"relative"}}
               />
-            </div>
+            </div> */}
             <Tab className="vertical-tab mt-4">
               <GridViewIcon /> Dashboard
             </Tab>
@@ -34,12 +39,12 @@ const VerticalTabs = () => {
             <Tab className="vertical-tab">
               <WorkHistoryIcon /> My Jobs
             </Tab>
-            <Tab className="vertical-tab">
+            {/* <Tab className="vertical-tab">
               <PendingActionsIcon /> Unapproved Jobs
             </Tab>
             <Tab className="vertical-tab">
               <ChatIcon /> Messages
-            </Tab>
+            </Tab> */}
           </TabList>
           <TabPanel>
             <Home />
@@ -50,12 +55,12 @@ const VerticalTabs = () => {
           <TabPanel>
             <AllJobs />
           </TabPanel>
-          <TabPanel>
+          {/* <TabPanel>
             <UnapprovedJobs />
           </TabPanel>
           <TabPanel>
             <ChatScreen />
-          </TabPanel>
+          </TabPanel> */}
         </Tabs>
       </div>
     </>
