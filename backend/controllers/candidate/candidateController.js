@@ -5,6 +5,11 @@ const User = require("../../models/userModal");
 const { sendEmailNotification } = require("../../utils/utils");
 const { cloudinary } = require("../../utils/cloudinary");
 
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+const path = require('path');
+
 module.exports = {
   listAllJobs: () => {
     return new Promise((resolve, reject) => {
@@ -32,17 +37,43 @@ module.exports = {
   },
   uploadResume: (filename, userId) => {
     return new Promise((resolve, reject) => {
+      // First, find the user to ensure they exist
       User.findOne({ _id: userId }).then((user) => {
         if (user) {
-          if (user.resume) {
-            User.updateOne({ _id: userId }, { $set: { resume: filename } })
-              .then(() => resolve())
-              .catch((error) => reject(error));
-          } else {
-            User.updateOne({ _id: userId }, { $set: { resume: filename } })
-              .then(() => resolve())
-              .catch((error) => reject(error));
-          }
+          // Update the user's resume field in the database
+          User.updateOne({ _id: userId }, { $set: { resume: filename } })
+            .then(() => {
+              // After updating the resume field, proceed to call the Flask API
+              const filepath = path.join(__dirname, "../..", "uploads", filename);
+              const formData = new FormData();
+              formData.append('file', fs.createReadStream(filepath));
+              
+              // Optionally add other fields like job skills if needed
+              // formData.append('skills_and_requirement', JSON.stringify([...]));
+
+              axios.post('http://localhost:5000/process_cv', formData, {
+                headers: {
+                  ...formData.getHeaders(),
+                },
+              })
+              .then(response => {
+                // Handle Flask API response here
+                console.log('CV processed:', response.data);
+                // Optionally, use the response data to update the user profile or matched skills
+                
+                resolve(response.data); // Resolve with Flask API response
+              })
+              .catch(error => {
+                console.error('Error calling Flask API:', error);
+                reject(error); // Reject if Flask API call fails
+              });
+            })
+            .catch((error) => {
+              // Reject if updating the user's resume in the database fails
+              reject(error);
+            });
+        } else {
+          reject(new Error("User not found"));
         }
       });
     });

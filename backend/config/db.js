@@ -8,7 +8,7 @@ module.exports.connect = async () => {
   try {
     mongoose.set("strictQuery", false);
     mongoose.connect(dbUrl);
-    console.log("Mongodb     Database connected");
+    console.log("Mongodb Database connected");
   } catch (error) {
     console.log(error);
 
