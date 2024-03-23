@@ -5,8 +5,10 @@ from transformers import pipeline
 
 import os
 import pandas as pd
+
+from PyPDF2 import PdfReader
 import pdfplumber
-import fitz
+#import fitz
 
 import re
 from string import punctuation
@@ -30,14 +32,18 @@ class ResumeReader:
         """
             A utility function to convert a Microsoft docx files to raw text.
 
-            This code is largely borrowed from existing solutions, and does not match the style of the rest of this repo.
+            This code is largely borrowed from existing solutions.
             :param docx_file: docx file with gets uploaded by the user
             :type docx_file: InMemoryUploadedFile
             :return: The text contents of the docx file
             :rtype: str
         """
 
-        
+        # doc = docx.Document(docx_file)
+        # allText = []
+        # for docpara in doc.paragraphs:
+            # allText.append(docpara.text)
+        # text = ' '.join(allText)
         text = ""
         try:
             clean_text = re.sub(r'\n+', '\n', text)
@@ -60,17 +66,36 @@ class ResumeReader:
         :return: The text contents of the pdf
         :rtype: str
         """
-
+        '''
         pdf = pdfplumber.open(pdf_file)
         raw_text= ""
         with fitz.open(pdf_file) as doc:
             for page in doc:
                 raw_text += page.get_text()
-                #print(raw_text)
+
+        print(raw_text)
         # for page in pdf.pages:
         #     raw_text += page.extract_text() + "\n"
 
         pdf.close()
+        
+        with open(pdf_file, "rb") as f:
+            pdf_reader = PdfReader(f)
+            raw_text = ""
+            for page in pdf_reader.pages:
+                raw_text += page.extract_text()
+        print(raw_text)
+        '''
+
+        
+        with pdfplumber.open(pdf_file) as pdf:
+          raw_text = "" 
+          for page in pdf.pages:
+            # Extract text from each page
+            page_text = page.extract_text()
+            # Remove leading and trailing spaces and add a space after each word
+            #page_text = " ".join(page_text.split())
+            raw_text += page_text   # Add a newline character after each page
 
         try:
             full_string = re.sub(r'\n+', '\n', raw_text)
@@ -120,34 +145,38 @@ class ResumeReader:
 
 
 class Models:
+    def __init__(self):
+        self.models_dir = 'saved_models'
 
     def pickle_it(self, obj, file_name):
-        with open(f'{file_name}.pickle', 'wb') as f:
+        with open(os.path.join(self.models_dir, f"{file_name}.pickle"), 'wb') as f:
             pickle.dump(obj, f)
 
     def unpickle_it(self, file_name):
-        with open(f'{file_name}.pickle', 'rb') as f:
+        with open(os.path.join(self.models_dir, f'{file_name}.pickle'), 'rb') as f:
             return pickle.load(f)
 
     def load_trained_models(self, pickle=False):
-        #NER (dates)
-        #this model got an f1 score of ~83%
-        tokenizer = AutoTokenizer.from_pretrained("Jean-Baptiste/camembert-ner-with-dates",use_fast=False)
-        model = AutoModelForTokenClassification.from_pretrained("Jean-Baptiste/camembert-ner-with-dates")
-        self.ner_dates = pipeline('ner', model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+        # Ensure models directory exists
+        if not os.path.exists(self.models_dir):
+            os.makedirs(self.models_dir)
 
-        #Zero Shot Classification
-        # self.zero_shot_classifier = pipeline("zero-shot-classification", model='facebook/bart-large-mnli')
+        # NER (dates)
+        # this model got an f1 score of ~83%
+        tokenizer_ner_dates = AutoTokenizer.from_pretrained("Jean-Baptiste/camembert-ner-with-dates", use_fast=False)
+        model_ner_dates = AutoModelForTokenClassification.from_pretrained("Jean-Baptiste/camembert-ner-with-dates")
+        self.ner_dates = pipeline('ner', model=model_ner_dates, tokenizer=tokenizer_ner_dates, aggregation_strategy="simple")
+
+        # Zero Shot Classification
         self.zero_shot_classifier = pipeline("zero-shot-classification", model='valhalla/distilbart-mnli-12-6')
 
-        # Ner
-        tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER",use_fast=False)
-        model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
-        self.ner = pipeline('ner', model=model, tokenizer=tokenizer, grouped_entities=True)
+        # NER
+        tokenizer_ner = AutoTokenizer.from_pretrained("dslim/bert-base-NER", use_fast=False)
+        model_ner = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
+        self.ner = pipeline('ner', model=model_ner, tokenizer=tokenizer_ner, grouped_entities=True)
 
-        # Pos Tagging
+        # POS Tagging
         self.tagger = SequenceTagger.load("flair/pos-english")
-
 
         if pickle:
             self.pickle_models()
@@ -155,17 +184,31 @@ class Models:
         return self.ner, self.ner_dates, self.zero_shot_classifier, self.tagger
 
     def pickle_models(self):
-        self.pickle_it(self.ner, "ner")
-        self.pickle_it(self.zero_shot_classifier, "zero_shot_classifier_6")
-        self.pickle_it(self.ner_dates, "ner_dates")
-        self.pickle_it(self.tagger, "pos_tagger_fast")
+        self.pickle_it(self.ner, "ner_model")
+        self.pickle_it(self.zero_shot_classifier.model, "zero_shot_classifier_model")
+        self.pickle_it(self.ner_dates, "ner_dates_model")
+        self.pickle_it(self.tagger, "pos_tagger_model")
 
+        # Save tokenizers and configuration files
+        self.ner.tokenizer.save_pretrained(os.path.join(self.models_dir, "ner_tokenizer"))
+        self.ner_dates.tokenizer.save_pretrained(os.path.join(self.models_dir, "ner_dates_tokenizer"))
+        self.zero_shot_classifier.tokenizer.save_pretrained(os.path.join(self.models_dir, "zero_shot_classifier_tokenizer"))
 
     def load_pickled_models(self):
-        ner_dates = self.unpickle_it('ner_dates')
-        ner = self.unpickle_it('ner')
-        zero_shot_classifier = self.unpickle_it('zero_shot_classifier_6')
-        tagger = self.unpickle_it("pos_tagger_fast")
+        # Load models from pickle files
+        ner_dates = self.unpickle_it('ner_dates_model')
+        ner = self.unpickle_it('ner_model')
+        zero_shot_classifier_model = self.unpickle_it('zero_shot_classifier_model')
+        tagger = self.unpickle_it("pos_tagger_model")
+
+        # Load tokenizers and configuration files
+        tokenizer_ner_dates = AutoTokenizer.from_pretrained(os.path.join(self.models_dir, "ner_dates_tokenizer"))
+        tokenizer_ner = AutoTokenizer.from_pretrained(os.path.join(self.models_dir, "ner_tokenizer"))
+        tokenizer_zero_shot_classifier = AutoTokenizer.from_pretrained(os.path.join(self.models_dir, "zero_shot_classifier_tokenizer"))
+
+        # Create pipelines with loaded models and tokenizers
+        zero_shot_classifier = pipeline("zero-shot-classification", model=zero_shot_classifier_model, tokenizer=tokenizer_zero_shot_classifier)
+
         return ner_dates, ner, zero_shot_classifier, tagger
 
     def get_flair_sentence(self, sent):
@@ -693,8 +736,10 @@ class ResumeParser:
                 if entity.tag.startswith("V"):
                     has_verb = True
 
-            #if tags:
-            most_common_tag = max(set(tags), key=tags.count)
+            if tags:
+                most_common_tag = max(set(tags), key=tags.count)
+            else: 
+                most_common_tag=""
             if (most_common_tag == "NNP") or (most_common_tag == "NN"):
             # if most_common_tag == "NNP":
                 if not has_verb:
@@ -739,6 +784,7 @@ def main_skill_parse(file_path):
 class Main:
     def __init__(self):
         models = Models()
+        #ner_dates, ner, zero_shot_classifier, tagger = models.load_pickled_models()
         ner, ner_dates, zero_shot_classifier, tagger = models.load_trained_models()
         self.reader = ResumeReader()
         self.parser = ResumeParser(ner, ner_dates, zero_shot_classifier, tagger)

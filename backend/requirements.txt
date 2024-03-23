@@ -1,11 +1,9 @@
 PyPDF2 
 docx2txt 
 flair==0.10
-fitz
 pdfplumber
 PyMuPDF
 scikit-learn
 transformers 
 torch
-pymongo
-flask
+pandas

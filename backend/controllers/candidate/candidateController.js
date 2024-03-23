@@ -5,9 +5,7 @@ const User = require("../../models/userModal");
 const { sendEmailNotification } = require("../../utils/utils");
 const { cloudinary } = require("../../utils/cloudinary");
 
-const axios = require('axios');
-const FormData = require('form-data');
-const fs = require('fs');
+const { PythonShell } = require('python-shell');
 const path = require('path');
 
 module.exports = {
@@ -43,29 +41,37 @@ module.exports = {
           // Update the user's resume field in the database
           User.updateOne({ _id: userId }, { $set: { resume: filename } })
             .then(() => {
-              // After updating the resume field, proceed to call the Flask API
-              const filepath = path.join(__dirname, "../..", "uploads", filename);
-              const formData = new FormData();
-              formData.append('file', fs.createReadStream(filepath));
-              
-              // Optionally add other fields like job skills if needed
-              // formData.append('skills_and_requirement', JSON.stringify([...]));
+              // Fetch job skills from MongoDB Atlas
+              Jobs.findOne({}).then((job) => {
+                if (job && job.skills_and_requirement) {
+                  const jobSkills = JSON.parse(job.skills_and_requirement);
 
-              axios.post('http://localhost:5000/process_cv', formData, {
-                headers: {
-                  ...formData.getHeaders(),
-                },
-              })
-              .then(response => {
-                // Handle Flask API response here
-                console.log('CV processed:', response.data);
-                // Optionally, use the response data to update the user profile or matched skills
-                
-                resolve(response.data); // Resolve with Flask API response
-              })
-              .catch(error => {
-                console.error('Error calling Flask API:', error);
-                reject(error); // Reject if Flask API call fails
+                  // After updating the resume field, proceed to call the Python script
+                  const pythonScriptPath = path.join(__dirname, 'app.py');
+                  const cvFilePath = path.join(__dirname, '..', '..', 'uploads', filename);
+                  const options = {
+                    pythonOptions: ['-u'], // unbuffered output
+                    args: [cvFilePath, JSON.stringify(jobSkills)], // Pass CV file path and job skills as arguments
+                  };
+
+                  PythonShell.run(pythonScriptPath, options, (err, result) => {
+                    if (err) {
+                      console.error('Error calling Python script:', err);
+                      reject(err); // Reject if Python script call fails
+                    } else {
+                      // Handle Python script response here
+                      const parsedResult = JSON.parse(result);
+                      console.log('CV processed:', parsedResult);
+                      // Optionally, use the response data to update the user profile or matched skills
+                      resolve(parsedResult); // Resolve with Python script response
+                    }
+                  });
+                } else {
+                  reject(new Error("Job not found or skills_and_requirement field empty"));
+                }
+              }).catch((error) => {
+                console.error('Error fetching job from database:', error);
+                reject(error);
               });
             })
             .catch((error) => {

@@ -21,6 +21,11 @@ def match_skills(cv_skills, job_skills):
     """
     Match CV skills against job skills using a combination of TF-IDF and BERT embeddings.
     """
+    
+    if not cv_skills or not job_skills:
+        print("Either job skills or skills in cv are not present")
+        return [],0
+    
     # TF-IDF Vectorization
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform(cv_skills + job_skills)
@@ -50,6 +55,7 @@ def match_skills(cv_skills, job_skills):
     
     return matched_skills, overall_score
 
+'''
 # Example usage
 cv_skills = ["Python programming", "Data analysis", "Machine learning"]
 job_skills = ["Python scripting", "Data Science", "Deep Learning"]
@@ -58,3 +64,4 @@ matched_skills, overall_score = match_skills(cv_skills, job_skills)
 print("Matched Skills and Scores:", matched_skills)
 print("Overall Matching Score:", overall_score)
 
+'''
