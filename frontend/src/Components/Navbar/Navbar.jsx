@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Navbar.css";
-import JobSeekerSidebar from "../Sidebar/Jobseekersidebar";
+//import JobSeekerSidebar from "../Sidebar/Jobseekersidebar";
 
 function Navbar() {
   const [userData, setUserData] = useState(

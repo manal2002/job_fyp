@@ -6,11 +6,11 @@ import MyChart from "../../Components/Chart/Chart";
 import Table2 from "../Components/Table2";
 function AllJobs() {
   return (
-    <div className="container-fluid mt-5">
+    <div className="container-fluid mt-5" style={{ backgroundColor: "white",  overflowY: "auto" }}>
       <h4 className="dash-title">My Jobs</h4>
       <p className="date">Today is Monday, 23 November 2023</p>
-      <div className="dashboard-home">
-        <div>
+      <div className="dashboard-home" style={{ backgroundColor: "white" }}>
+        
           <div className="list-section mt-5">
             <div className="row mt-4 p-2">
               <div className="col-md-12 col-lg-12">
@@ -22,7 +22,7 @@ function AllJobs() {
               </div>
             </div>
           </div>
-        </div>
+        
       </div>
     </div>
   );

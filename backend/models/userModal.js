@@ -23,7 +23,9 @@ const userSchema = new mongoose.Schema(
       default:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx9tjaExsY-srL4VsHNE_OKGVCJ-eIFNBktw&usqp=CAU",
     },
-    appliedJobs: [],
+    //appliedJobs: [],
+    appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Jobs' }],
+
     resume: { type: String },
   },
   {
