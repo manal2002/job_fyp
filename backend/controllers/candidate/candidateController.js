@@ -202,6 +202,8 @@
 const AppliedJobs = require("../../models/appliedJobs");
 const Jobs = require("../../models/jobModal");
 const User = require("../../models/userModal");
+// import generateQuestions from "../../quiz/generateQuiz";
+const { PythonShell } = require('python-shell');
 
 module.exports = {
   listAllJobs: async () => {
@@ -228,19 +230,65 @@ module.exports = {
     }
   },
 
+  // uploadResume: async (filename, userId) => {
+  //   try {
+  //     const user = await User.findOne({ _id: userId });
+  //     if (user) {
+  //       await User.updateOne({ _id: userId }, { $set: { resume: filename } });
+  //       return { success: true, message: "Resume updated successfully" };
+  //     } else {
+  //       return { success: false, message: "User not found" };
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating resume:", error);
+  //     return { success: false, message: "Error updating resume", error: error.message };
+  //   }
+  // },
+
+
   uploadResume: async (filename, userId) => {
     try {
       const user = await User.findOne({ _id: userId });
-      if (user) {
-        await User.updateOne({ _id: userId }, { $set: { resume: filename } });
-        return { success: true, message: "Resume updated successfully" };
-      } else {
+      
+      if (!user) {
         return { success: false, message: "User not found" };
       }
+  
+      await User.updateOne({ _id: userId }, { $set: { resume: filename } });
+      const job = await Jobs.findOne({});
+  
+      if (!job || !job.skills_and_requirement) {
+        return { success: false, message: "Job not found or skills_and_requirement field empty" };
+      }
+  
+      const jobSkills = JSON.parse(job.skills_and_requirement);
+      const pythonScriptPath = path.join(__dirname, 'app.py');
+      const cvFilePath = path.join(__dirname, '..', '..', 'uploads', filename);
+      const options = {
+        pythonOptions: ['-u'], // unbuffered output
+        args: [cvFilePath, JSON.stringify(jobSkills)], // Pass CV file path and job skills as arguments
+      };
+  
+      const result = await new Promise((resolve, reject) => {
+        PythonShell.run(pythonScriptPath, options, (err, result) => {
+          if (err) {
+            console.error('Error calling Python script:', err);
+            reject(err); // Reject if Python script call fails
+          } else {
+            // Handle Python script response here
+            const parsedResult = JSON.parse(result);
+            console.log('CV processed:', parsedResult);
+            // Optionally, use the response data to update the user profile or matched skills
+            resolve(parsedResult); // Resolve with Python script response
+          }
+        });
+      });
+  
+      return { success: true, message: "Resume updated successfully", result };
     } catch (error) {
       console.error("Error updating resume:", error);
-      return { success: false, message: "Error updating resume", error: error.message };
-    }
+      return { success: false, message: "Error updating resume", error: error.message };
+    }
   },
 
   // applyJob: async (data) => {
@@ -340,10 +388,49 @@ module.exports = {
 // },
 //////////////////////////////////////
 
+// applyJob: async (data) => {
+//   try {
+//       console.log("Data received:", data); // Print the data object
+//       const { jobId, userId } = data;
+
+//       // If jobId and userId are provided, proceed with the application
+//       if (jobId && userId) {
+//           // Check if the job exists
+//           const jobDetails = await module.exports.getJobDetails(jobId);
+//           if (!jobDetails.success) {
+//               throw new Error("Job not found");
+//           }
+
+//           // Retrieve user information
+//           const user = await User.findOne({ _id: userId });
+//           if (!user) {
+//               throw new Error("User not found");
+//           }
+
+//           // Get the actual jobId from jobDetails
+//           const actualJobId = jobDetails.data._id;
+
+//           // Create a new applied job record
+//           const appliedJobRecord = await AppliedJobs.create({ 
+//               jobId: actualJobId, 
+//               appliedUsers: [user] 
+//           });
+
+//           return { success: true, message: "Application updated successfully" };
+//       } else {
+//           // If jobId or userId is not provided, handle the error
+//           throw new Error("JobId and userId are required");
+//       }
+//   } catch (error) {
+//       console.error("Error applying for job:", error);
+//       return { success: false, message: "Error applying for job", error: error.message };
+//   }
+// },
+
 applyJob: async (data) => {
   try {
       console.log("Data received:", data); // Print the data object
-      const { jobId, userId } = data;
+      const { jobId, userId, quiz_score } = data;
 
       // If jobId and userId are provided, proceed with the application
       if (jobId && userId) {
@@ -364,8 +451,9 @@ applyJob: async (data) => {
 
           // Create a new applied job record
           const appliedJobRecord = await AppliedJobs.create({ 
-              jobId: actualJobId, 
-              appliedUsers: [user] 
+            jobId: actualJobId, 
+            appliedUsers: [user],
+            quizScore: quiz_score // Store quiz score along with other application data
           });
 
           return { success: true, message: "Application updated successfully" };
@@ -378,7 +466,6 @@ applyJob: async (data) => {
       return { success: false, message: "Error applying for job", error: error.message };
   }
 },
-
 
 
 

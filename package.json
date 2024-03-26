@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@mui/styles": "^5.15.12"
+    "@mui/styles": "^5.15.12",
+    "openai": "^4.29.2"
   }
 }

@@ -81,11 +81,21 @@ candidateRouter.post("/apply-job", (req, res) => {
   });
 });
 
-candidateRouter.get("/my-jobs/:id", (req, res) => {
-  getMyJobs(req.params.id).then((result) => {
-    res.send(result);
-  });
-});
+// candidateRouter.get("/my-jobs/:id", (req, res) => {
+//   getMyJobs(req.params.id).then((result) => {
+//     res.send(result);
+//   });
+// });
+
+// candidateRouter.post("/apply-job", async (req, res) => {
+//   try {
+//     const applicationResult = await module.exports.applyJob(req.body);
+//     res.json(applicationResult);
+//   } catch (error) {
+//     console.error("Error applying for job:", error);
+//     res.status(500).json({ success: false, message: "Error applying for job", error: error.message });
+//   }
+// });
 
 candidateRouter.post("/edit-profile/:id", (req, res) => {
   editProfile(req.params.id, req.body).then((result) => {
@@ -99,5 +109,25 @@ candidateRouter.get("/profile/:id", (req, res) => {
     res.send(result);
   });
 });
+
+
+// Route to generate interview questions
+// Route to generate interview questions
+// candidateRouter.post('/generate-interview-questions', async (req, res) => {
+//   const { jobDescription, matchedSkills } = req.body;
+
+//   try {
+//     // Call the function to generate interview questions
+//     const questions = await generateInterviewQuestions(jobDescription, matchedSkills);
+
+//     // Store the generated questions in the session
+//     req.session.interviewQuestions = questions;
+
+//     res.json({ success: true, message: 'Interview questions generated and stored in session' });
+//   } catch (error) {
+//     console.error('Error generating interview questions:', error);
+//     res.status(500).json({ success: false, message: 'Error generating interview questions' });
+//   }
+// });
 
 module.exports = candidateRouter;
