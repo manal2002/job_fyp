@@ -38,13 +38,13 @@ function RegisterScreen() {
       setPasswordError(false);
     }
 
-    if (!username || username.trim() == "") {
+    if (!username || username.trim() === "") {
       setUsernameError(true);
     } else {
       setUsernameError(false);
     }
 
-    if (!firstName || firstName.trim() == "") {
+    if (!firstName || firstName.trim() === "") {
       setFirstNameError(true);
     } else {
       setFirstNameError(false);

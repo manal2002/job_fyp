@@ -24,8 +24,16 @@ const userSchema = new mongoose.Schema(
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx9tjaExsY-srL4VsHNE_OKGVCJ-eIFNBktw&usqp=CAU",
     },
     //appliedJobs: [],
-    appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Jobs' }],
-
+    //appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Jobs' }],
+    appliedJobs: [{
+      job: { type: mongoose.Schema.Types.ObjectId, ref: 'Jobs' },
+      quizScore: Number, // Store the quiz score associated with the job
+      skillMatchScore: Number,
+      matchedSkills: []
+      // Any other relevant fields related to the applied job can be added here
+    }]
+  },
+  {
     resume: { type: String },
   },
   {
