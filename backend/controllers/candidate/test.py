@@ -7,8 +7,7 @@ from cv_parser import parse_cv
 from skill_matching import match_skills
 
 def process_cv(file_path, job_skills):
-    sys.stdout = open(os.devnull, 'w')
-    sys.stderr = open(os.devnull, 'w')
+    
 
     print("Processing CV...")
     
@@ -34,9 +33,6 @@ def process_cv(file_path, job_skills):
     matched_skills, score = match_skills(cv_skills, job_skills_list)  # Implement this function
     print("Matched skills:", matched_skills)
     print("Match score:", score)
-    # Restore standard output and standard error
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
 
     return {'matched_skills': matched_skills, 'match_score': score}
 

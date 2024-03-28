@@ -47,13 +47,13 @@ def match_skills(cv_skills, job_skills):
         best_match_idx = np.argmax(combined_similarities[i])
         best_match_score = combined_similarities[i][best_match_idx]
         if best_match_score > 0.5:  # Threshold for considering a match
-            matched_skills.append((cv_skill, job_skills[best_match_idx]))
+            matched_skills.append(job_skills[best_match_idx])
             scores.append(best_match_score)
     
     # Calculate an overall matching score
     overall_score = np.mean(scores) if scores else 0
     
-    return matched_skills, overall_score*10
+    return matched_skills, overall_score*100
 
 '''
 # Example usage
