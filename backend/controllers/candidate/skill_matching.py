@@ -53,7 +53,7 @@ def match_skills(cv_skills, job_skills):
     # Calculate an overall matching score
     overall_score = np.mean(scores) if scores else 0
     
-    return matched_skills, overall_score
+    return matched_skills, overall_score*10
 
 '''
 # Example usage

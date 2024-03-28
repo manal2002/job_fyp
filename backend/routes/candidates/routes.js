@@ -51,13 +51,19 @@ candidateRouter.get("/job/:jobId", (req, res) => {
   });
 });
 
-candidateRouter.post("/upload-resume", upload.single("resume"), (req, res) => {
+candidateRouter.post("/upload-resume", upload.single("resume"), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded." });
   }
   const { filename } = req.file;
-  uploadResume(filename, req.body.userId);
-  return res.json({ filename });
+  const { userId } = req.body;
+  try {
+    const uploadResult = await uploadResume(filename, userId);
+    return res.json({ filename });
+  } catch (error) {
+    console.error("Error uploading resume:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 candidateRouter.get("/download-resume/:filename", (req, res) => {

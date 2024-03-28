@@ -5,8 +5,11 @@ const AppliedJobs = require("../../models/appliedJobs");
 const Jobs = require("../../models/jobModal");
 const User = require("../../models/userModal");
 
-const { PythonShell } = require('python-shell');
+
+const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+
 
 module.exports = {
 
@@ -36,10 +39,13 @@ module.exports = {
 
   uploadResume: async (filename, userId) => {
     try {
-      const user = await User.findOne({ _id: userId });
+      const user = await User.findOneAndUpdate(
+        { _id: userId },
+        { $set: { resume: filename } },
+        { new: true } // To return the updated document
+      );
       if (user) {
-        await User.updateOne({ _id: userId }, { $set: { resume: filename } });
-        return { success: true, message: "Resume updated successfully" };
+        return { success: true, message: "Resume updated successfully", user };
       } else {
         return { success: false, message: "User not found" };
       }
@@ -155,14 +161,14 @@ applyJob: async (data) => {
       // Check if the job exists
       const jobDetails = await module.exports.getJobDetails(jobId);
       if (!jobDetails.success) {
-        console.log("Job not found")
+        console.log("Job not found");
         throw new Error("Job not found");
       }
 
       // Retrieve user information
       const user = await User.findOne({ _id: userId });
       if (!user) {
-        console.log("user not found")
+        console.log("User not found");
         throw new Error("User not found");
       }
 
@@ -170,48 +176,50 @@ applyJob: async (data) => {
       const actualJobId = jobDetails.data._id;
 
       // Create a new applied job record
-      const appliedJobRecord = await AppliedJobs.create({ 
-          jobId: actualJobId, 
-          appliedUsers: [user] 
+      const appliedJobRecord = await AppliedJobs.create({
+        jobId: actualJobId,
+        appliedUsers: [user]
       });
 
       // Convert jobSkills string to match expected format in Python script
-      let jobSkills;
-      if (jobDetails.data.jobSkills.includes(',')) {
-        jobSkills = jobDetails.data.jobSkills.split(',').map(skill => skill.trim());
-      } else {
-        jobSkills = jobDetails.data.jobSkills.split('\n').map(skill => skill.trim());
-      }
+      let jobSkills = jobDetails.data.jobSkills;
 
       // Construct the file path as a string
-      const cvFilePath = path.join(__dirname, '..', '..', 'uploads', String(user.resume));
-
-      // Call CV parser
-      const pythonScriptPath = path.join(__dirname, 'app.py');
-      const options = {
-        pythonOptions: ['-u'], // unbuffered output
-        args: [cvFilePath, ...jobSkills], // Pass CV file path and job skills as arguments
-      };
+      const cvFilePath = path.join(__dirname, '..', '..', 'uploads', String(data.my_resume));
 
       console.log("Calling Python script...");
-      const result = await new Promise((resolve, reject) => {
-        PythonShell.run(pythonScriptPath, options, (err, result) => {
-          if (err) {
-            console.log("Error calling Python script:")
-            console.error('Error calling Python script:', err);
-            reject(err); // Reject if Python script call fails
-          } else {
-            // Handle Python script response here
-            const parsedResult = JSON.parse(result);
-            console.log('CV processed:', parsedResult);
-            // Optionally, use the response data to update the user profile or matched skills
-            resolve(parsedResult); // Resolve with Python script response
-          }
-        });
+      const pythonScriptPath = path.join(__dirname, 'app.py');
+
+      // Spawn a new process to execute the Python script
+      const pythonProcess = spawn('python', [pythonScriptPath, cvFilePath, JSON.stringify(jobSkills)]);
+
+      let matchedSkills = '';
+      let matchScore = '';
+
+      // Listen for output data from the Python script (stdout)
+      pythonProcess.stdout.on('data', (data) => {
+        // Parse the JSON output
+        const result = JSON.parse(data);
+        // Extract matched skills and match score
+        matchedSkills = result.matched_skills;
+        matchScore = result.match_score;
+        console.log('Matched skills:', matchedSkills);
+        console.log('Match score:', matchScore);
       });
 
-      console.log("Python script executed successfully.");
-      return { success: true, message: "Application updated successfully", result };
+      // Listen for errors from the Python script (stderr)
+      pythonProcess.stderr.on('data', (data) => {
+        console.error('Python script error:', data.toString());
+      });
+
+      // Handle process exit
+      pythonProcess.on('exit', (code) => {
+        console.log(`Python script process exited with code ${code}`);
+        // Optionally, handle any exit tasks here
+      });
+
+      // Return success message along with matched skills and match score
+      return { success: true, message: "Application updated successfully", matchedSkills, matchScore };
     } else {
       // If jobId or userId is not provided, handle the error
       throw new Error("JobId and userId are required");

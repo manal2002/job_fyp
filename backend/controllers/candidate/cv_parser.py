@@ -9,6 +9,8 @@ import pandas as pd
 from PyPDF2 import PdfReader
 import pdfplumber
 #import fitz
+import sys
+import logging
 
 import re
 from string import punctuation
@@ -145,22 +147,21 @@ class ResumeReader:
 
 
 class Models:
-    def __init__(self):
-        self.models_dir = 'saved_models'
-
+    
     def pickle_it(self, obj, file_name):
-        with open(os.path.join(self.models_dir, f"{file_name}.pickle"), 'wb') as f:
+        models_dir = 'saved_models'
+        with open(os.path.join(models_dir, f"{file_name}.pickle"), 'wb') as f:
             pickle.dump(obj, f)
 
     def unpickle_it(self, file_name):
-        with open(os.path.join(self.models_dir, f'{file_name}.pickle'), 'rb') as f:
+        models_dir = 'saved_models'
+        with open(os.path.join(models_dir, f'{file_name}.pickle'), 'rb') as f:
             return pickle.load(f)
 
     def load_trained_models(self, pickle=False):
-        # Ensure models directory exists
-        if not os.path.exists(self.models_dir):
-            os.makedirs(self.models_dir)
-
+        
+        # Configure logging to suppress INFO level messages
+        logging.basicConfig(level=logging.WARNING)
         # NER (dates)
         # this model got an f1 score of ~83%
         tokenizer_ner_dates = AutoTokenizer.from_pretrained("Jean-Baptiste/camembert-ner-with-dates", use_fast=False)
@@ -184,17 +185,19 @@ class Models:
         return self.ner, self.ner_dates, self.zero_shot_classifier, self.tagger
 
     def pickle_models(self):
+        models_dir = 'saved_models'
         self.pickle_it(self.ner, "ner_model")
         self.pickle_it(self.zero_shot_classifier.model, "zero_shot_classifier_model")
         self.pickle_it(self.ner_dates, "ner_dates_model")
         self.pickle_it(self.tagger, "pos_tagger_model")
 
         # Save tokenizers and configuration files
-        self.ner.tokenizer.save_pretrained(os.path.join(self.models_dir, "ner_tokenizer"))
-        self.ner_dates.tokenizer.save_pretrained(os.path.join(self.models_dir, "ner_dates_tokenizer"))
-        self.zero_shot_classifier.tokenizer.save_pretrained(os.path.join(self.models_dir, "zero_shot_classifier_tokenizer"))
+        self.ner.tokenizer.save_pretrained(os.path.join(models_dir, "ner_tokenizer"))
+        self.ner_dates.tokenizer.save_pretrained(os.path.join(models_dir, "ner_dates_tokenizer"))
+        self.zero_shot_classifier.tokenizer.save_pretrained(os.path.join(models_dir, "zero_shot_classifier_tokenizer"))
 
     def load_pickled_models(self):
+        models_dir = 'saved_models'
         # Load models from pickle files
         ner_dates = self.unpickle_it('ner_dates_model')
         ner = self.unpickle_it('ner_model')
@@ -202,9 +205,9 @@ class Models:
         tagger = self.unpickle_it("pos_tagger_model")
 
         # Load tokenizers and configuration files
-        tokenizer_ner_dates = AutoTokenizer.from_pretrained(os.path.join(self.models_dir, "ner_dates_tokenizer"))
-        tokenizer_ner = AutoTokenizer.from_pretrained(os.path.join(self.models_dir, "ner_tokenizer"))
-        tokenizer_zero_shot_classifier = AutoTokenizer.from_pretrained(os.path.join(self.models_dir, "zero_shot_classifier_tokenizer"))
+        tokenizer_ner_dates = AutoTokenizer.from_pretrained(os.path.join(models_dir, "ner_dates_tokenizer"))
+        tokenizer_ner = AutoTokenizer.from_pretrained(os.path.join(models_dir, "ner_tokenizer"))
+        tokenizer_zero_shot_classifier = AutoTokenizer.from_pretrained(os.path.join(models_dir, "zero_shot_classifier_tokenizer"))
 
         # Create pipelines with loaded models and tokenizers
         zero_shot_classifier = pipeline("zero-shot-classification", model=zero_shot_classifier_model, tokenizer=tokenizer_zero_shot_classifier)
