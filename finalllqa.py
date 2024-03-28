@@ -10,7 +10,7 @@ import json
 
 
 def generate_interview_questions(job_desc, skills):
-    openai.api_key = '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'
+   openai.api_key = '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'
 
     try:
 
