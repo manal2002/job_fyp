@@ -8,8 +8,9 @@ function JobApply() {
   return (
     <div style={{ backgroundColor: "whitesmoke",height:"100vh" }}>
       <Navbar />
+      <JobSeekerSidebar/>
       <div>
-        <JobSeekerSidebar/>
+        
         {/* <StepperForm /> */}
         <ApplyJob />
       </div>

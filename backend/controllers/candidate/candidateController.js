@@ -230,66 +230,23 @@ module.exports = {
     }
   },
 
-  // uploadResume: async (filename, userId) => {
-  //   try {
-  //     const user = await User.findOne({ _id: userId });
-  //     if (user) {
-  //       await User.updateOne({ _id: userId }, { $set: { resume: filename } });
-  //       return { success: true, message: "Resume updated successfully" };
-  //     } else {
-  //       return { success: false, message: "User not found" };
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating resume:", error);
-  //     return { success: false, message: "Error updating resume", error: error.message };
-  //   }
-  // },
-
-
   uploadResume: async (filename, userId) => {
     try {
       const user = await User.findOne({ _id: userId });
-      
-      if (!user) {
+      if (user) {
+        await User.updateOne({ _id: userId }, { $set: { resume: filename } });
+        return { success: true, message: "Resume updated successfully" };
+      } else {
         return { success: false, message: "User not found" };
       }
-  
-      await User.updateOne({ _id: userId }, { $set: { resume: filename } });
-      const job = await Jobs.findOne({});
-  
-      if (!job || !job.skills_and_requirement) {
-        return { success: false, message: "Job not found or skills_and_requirement field empty" };
-      }
-  
-      const jobSkills = JSON.parse(job.skills_and_requirement);
-      const pythonScriptPath = path.join(__dirname, 'app.py');
-      const cvFilePath = path.join(__dirname, '..', '..', 'uploads', filename);
-      const options = {
-        pythonOptions: ['-u'], // unbuffered output
-        args: [cvFilePath, JSON.stringify(jobSkills)], // Pass CV file path and job skills as arguments
-      };
-  
-      const result = await new Promise((resolve, reject) => {
-        PythonShell.run(pythonScriptPath, options, (err, result) => {
-          if (err) {
-            console.error('Error calling Python script:', err);
-            reject(err); // Reject if Python script call fails
-          } else {
-            // Handle Python script response here
-            const parsedResult = JSON.parse(result);
-            console.log('CV processed:', parsedResult);
-            // Optionally, use the response data to update the user profile or matched skills
-            resolve(parsedResult); // Resolve with Python script response
-          }
-        });
-      });
-  
-      return { success: true, message: "Resume updated successfully", result };
     } catch (error) {
       console.error("Error updating resume:", error);
-      return { success: false, message: "Error updating resume", error: error.message };
-    }
+      return { success: false, message: "Error updating resume", error: error.message };
+    }
   },
+
+
+ 
 
   // applyJob: async (data) => {
   //   try {
@@ -427,6 +384,46 @@ module.exports = {
 //   }
 // },
 
+// applyJob: async (data) => {
+//   try {
+//       console.log("Data received:", data); // Print the data object
+//       const { jobId, userId, quiz_score } = data;
+
+//       // If jobId and userId are provided, proceed with the application
+//       if (jobId && userId) {
+//           // Check if the job exists
+//           const jobDetails = await module.exports.getJobDetails(jobId);
+//           if (!jobDetails.success) {
+//               throw new Error("Job not found");
+//           }
+
+//           // Retrieve user information
+//           const user = await User.findOne({ _id: userId });
+//           if (!user) {
+//               throw new Error("User not found");
+//           }
+
+//           // Get the actual jobId from jobDetails
+//           const actualJobId = jobDetails.data._id;
+
+//           // Create a new applied job record
+//           const appliedJobRecord = await AppliedJobs.create({ 
+//             jobId: actualJobId, 
+//             appliedUsers: [user],
+//             quizScore: quiz_score // Store quiz score along with other application data
+//           });
+
+//           return { success: true, message: "Application updated successfully" };
+//       } else {
+//           // If jobId or userId is not provided, handle the error
+//           throw new Error("JobId and userId are required");
+//       }
+//   } catch (error) {
+//       console.error("Error applying for job:", error);
+//       return { success: false, message: "Error applying for job", error: error.message };
+//   }
+// },
+
 applyJob: async (data) => {
   try {
       console.log("Data received:", data); // Print the data object
@@ -449,12 +446,26 @@ applyJob: async (data) => {
           // Get the actual jobId from jobDetails
           const actualJobId = jobDetails.data._id;
 
+          // Construct the application object with userId and application data
+          const applicationObject = {
+              user: userId, // Store userId instead of the entire user object
+              quizScore: parseFloat(quiz_score), // Convert quiz_score to a float
+              ...data, // Include all other application data
+          };
+
+          console.log("Application Object:", applicationObject); // Print the application object
+
           // Create a new applied job record
           const appliedJobRecord = await AppliedJobs.create({ 
             jobId: actualJobId, 
-            appliedUsers: [user],
-            quizScore: quiz_score // Store quiz score along with other application data
+            appliedUsers: [applicationObject],
           });
+
+          console.log("Applied Job Record:", appliedJobRecord); // Print the applied job record
+
+          // Update the User model to add the applied job
+          user.appliedJobs.push({ job: actualJobId, quizScore: parseFloat(quiz_score) });
+          await user.save();
 
           return { success: true, message: "Application updated successfully" };
       } else {
@@ -467,6 +478,36 @@ applyJob: async (data) => {
   }
 },
 
+getResume: async (data) => {
+  try {
+    console.log("Data received successfully:", data); // Print the data object
+    const { resume, resumeFileName, jobId, userId } = data;
+
+    // If all required fields are provided, proceed to process the resume data
+    if (resume && resumeFileName && jobId && userId) {
+      // Construct the resume object with the necessary fields
+      const resumeObject = {
+
+        resume,
+        resumeFileName,
+        jobId,
+        userId,
+      };
+
+      console.log("Resume Object:", resumeObject); // Print the resume object
+
+      // Here, you can further process the resume data as needed, such as saving it to a database or performing other operations.
+
+      return { success: true, message: "Resume data retrieved successfully", data: resumeObject };
+    } else {
+      // If any required field is missing, handle the error
+      throw new Error("Required fields are missing");
+    }
+  } catch (error) {
+    console.error("Error getting resume data:", error);
+    return { success: false, message: "Error getting resume data", error: error.message };
+  }
+},
 
 
 
@@ -493,22 +534,61 @@ applyJob: async (data) => {
   // },
   
 
+  // getMyJobs : async (userId) => {
+  //   try {
+  //     const user = await User.findOne({ _id: userId }).populate('appliedJobs.job');
+  //     if (!user) {
+  //       return { success: false, message: "User not found" };
+  //     }
+  //     const appliedJobs = user.appliedJobs;
+  //     const myJobs = appliedJobs.map(job => job.job); // Extracting the job objects
+  //     return { success: true, message: "Retrieved jobs successfully", data: myJobs };
+  //   } catch (error) {
+  //     console.error("Error getting user's jobs:", error);
+  //     return { success: false, message: "Error getting user's jobs", error: error.message };
+  //   }
+  // },
+  
   getMyJobs: async (userId) => {
     try {
-      const user = await User.findOne({ _id: userId });
+      const user = await User.findOne({ _id: userId }).populate('appliedJobs.job');
+  
       if (!user) {
         return { success: false, message: "User not found" };
       }
-      const appliedJobs = user.appliedJobs;
-      const jobs = await AppliedJobs.find({ _id: { $in: appliedJobs } });
-      const jobIds = jobs.map(job => job.jobId);
-      const myJobs = await Jobs.find({ _id: { $in: jobIds } });
-      return { success: true, message: "Retrieved jobs successfully", data: myJobs };
+  
+      const appliedJobsWithScores = user.appliedJobs.map(job => ({
+        job: job.job,
+        quizScore: job.quizScore
+      }));
+  
+      return { success: true, message: "Retrieved jobs successfully", data: appliedJobsWithScores };
     } catch (error) {
-      console.error("Error getting user's jobs:", error);
-      return { success: false, message: "Error getting user's jobs", error: error.message };
+      console.error("Error getting user's applied jobs with quiz scores:", error);
+      return { success: false, message: "Error getting user's applied jobs with quiz scores", error: error.message };
     }
-  },
+  }
+  ,
+  
+  
+  
+
+  // getMyJobs: async (userId) => {
+  //   try {
+  //     const user = await User.findOne({ _id: userId });
+  //     if (!user) {
+  //       return { success: false, message: "User not found" };
+  //     }
+  //     const appliedJobs = user.appliedJobs;
+  //     const jobs = await AppliedJobs.find({ _id: { $in: appliedJobs } });
+  //     const jobIds = jobs.map(job => job.jobId);
+  //     const myJobs = await Jobs.find({ _id: { $in: jobIds } });
+  //     return { success: true, message: "Retrieved jobs successfully", data: myJobs };
+  //   } catch (error) {
+  //     console.error("Error getting user's jobs:", error);
+  //     return { success: false, message: "Error getting user's jobs", error: error.message };
+  //   }
+  // },
 
   editProfile: async (userId, data) => {
     try {

@@ -57,13 +57,18 @@ function AllJobs() {
 
   return (
     <>
+    <Navbar />
     
     <div className="main-content-wrapper" style={{ backgroundColor: "whitesmoke" }}></div>
     {/* <div style={{ backgroundColor: "whitesmoke" }}> */}
-      <Navbar />
+    
+    
       <div className="mt-5">
+      <JobSeekerSidebar />
+      
         <div className="container-fluid">
-        <JobSeekerSidebar />
+        
+        
           <div class="overlay" style={{ display: "none" }}></div>
           <div class="search-section">
             <div class="container-fluid container-xl">
@@ -131,7 +136,7 @@ function AllJobs() {
                               checked
                             />
                             <label class="custom-control-label" for="Chinese">
-                              Kerala
+                              Islamabad
                             </label>
                           </div>
                           <div class="custom-control custom-checkbox mb-3">
@@ -141,7 +146,7 @@ function AllJobs() {
                               id="Italian"
                             />
                             <label class="custom-control-label" for="Italian">
-                              Banglore
+                              Karachi
                             </label>
                           </div>
                           <div class="custom-control custom-checkbox mb-3">
@@ -151,7 +156,7 @@ function AllJobs() {
                               id="Mexican"
                             />
                             <label class="custom-control-label" for="Mexican">
-                              Trivandrum
+                              Lahore
                             </label>
                           </div>
                           <div class="custom-control custom-checkbox mb-3">
@@ -161,7 +166,7 @@ function AllJobs() {
                               id="Thai"
                             />
                             <label class="custom-control-label" for="Thai">
-                              Kottayam
+                              Rawalpindi
                             </label>
                           </div>
                           <div class="custom-control custom-checkbox mb-3">
@@ -171,7 +176,7 @@ function AllJobs() {
                               id="Gujarati"
                             />
                             <label class="custom-control-label" for="Gujarati">
-                              Ernakulam
+                              Faislabad
                             </label>
                           </div>
                           <div class="custom-control custom-checkbox mb-3">
@@ -181,7 +186,7 @@ function AllJobs() {
                               id="Panjabi"
                             />
                             <label class="custom-control-label" for="Panjabi">
-                              Panjab
+                              Multan
                             </label>
                           </div>
                           <div class="custom-control custom-checkbox mb-3">
@@ -194,7 +199,7 @@ function AllJobs() {
                               class="custom-control-label"
                               for="South-Indian"
                             >
-                              South Indian
+                              Peshawar
                             </label>
                           </div>
                         </div>
@@ -203,8 +208,8 @@ function AllJobs() {
                           Salary Range Range
                         </h2>
                         <div class="mb-3 theme-clr xs2-font d-flex justify-content-between">
-                          <span id="slider-range-value1">Min $100</span>
-                          <span id="slider-range-value2">Max $10,000</span>
+                          <span id="slider-range-value1">Min $25,000</span>
+                          <span id="slider-range-value2">Max $10,000,000</span>
                         </div>
                         <div class="mb-30 filter-options">
                           <div>

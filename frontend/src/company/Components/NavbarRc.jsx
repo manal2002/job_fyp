@@ -81,7 +81,10 @@ function NavbarRc() {
               // </li>
             )}
           </ul>
-          <h1 class="logo">CareerLinker</h1>
+          <h1 className="logo">
+            <img src={`${process.env.PUBLIC_URL}/logo.svg`} alt="Job Connect" className="logo-image" /> {/* Use the logo image from the public folder */}
+            <span className="logo-text">Job Connect</span>
+          </h1>
         </div>
       </nav>
       

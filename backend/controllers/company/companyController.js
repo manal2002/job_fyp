@@ -152,23 +152,65 @@ module.exports = {
   },
 
   // Function to get jobs posted by the company along with applied candidates
+  // getMyJobs: () => {
+  //   return new Promise((resolve, reject) => {
+  //     Jobs.find()
+  //       .then(async (jobs) => {
+  //         console.log("Jobs fetched:", jobs);
+  //         const jobDetails = await Promise.all(jobs.map(async (job) => {
+  //           try {
+  //             const appliedJobs = await AppliedJobs.find({ jobId: job._id })
+  //               .populate({
+  //                 path: 'appliedUsers',
+  //                 model: 'User',
+  //                 select: 'firstName lastName email contact resume' // Only select necessary fields
+  //               });
+              
+  //             const appliedCandidates = appliedJobs.map(appliedJob => appliedJob.appliedUsers).flat();
+  //             console.log("Applied candidates for job", job._id, ":", appliedCandidates);
+              
+  //             return {
+  //               ...job.toObject(),
+  //               appliedCandidates,
+  //             };
+  //           } catch (error) {
+  //             console.error("Error fetching applied candidates for job", job._id, ":", error);
+  //             return null; // Return null if an error occurs
+  //           }
+  //         }));
+
+  //         console.log("Jobs fetched successfully:", jobDetails);
+  //         resolve(successResponse("Jobs fetched successfully", jobDetails));
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching jobs:", error);
+  //         reject(errorResponse("Error fetching jobs", error));
+  //       });
+  //   });
+  // },
+
   getMyJobs: () => {
     return new Promise((resolve, reject) => {
       Jobs.find()
         .then(async (jobs) => {
-          console.log("Jobs fetched:", jobs);
+          //console.log("Jobs fetched:", jobs);
           const jobDetails = await Promise.all(jobs.map(async (job) => {
             try {
               const appliedJobs = await AppliedJobs.find({ jobId: job._id })
-                .populate({
-                  path: 'appliedUsers',
-                  model: 'User',
-                  select: 'firstName lastName email contact resume' // Only select necessary fields
-                });
-              
+              .populate({
+                path: 'appliedUsers.user', // Populate the 'user' field of 'appliedUsers'
+                model: 'User',
+                select: 'firstName lastName email', // Select necessary fields from User model
+              })
+              .populate({
+                path: 'appliedUsers', // Populate the 'quizScore' field of 'appliedUsers'
+                model: 'AppliedJobs',
+                select: 'quizScore', // Select the quizScore field
+              })
+  
               const appliedCandidates = appliedJobs.map(appliedJob => appliedJob.appliedUsers).flat();
               console.log("Applied candidates for job", job._id, ":", appliedCandidates);
-              
+  
               return {
                 ...job.toObject(),
                 appliedCandidates,
@@ -178,8 +220,8 @@ module.exports = {
               return null; // Return null if an error occurs
             }
           }));
-
-          console.log("Jobs fetched successfully:", jobDetails);
+  
+          //console.log("Jobs fetched successfully:", jobDetails);
           resolve(successResponse("Jobs fetched successfully", jobDetails));
         })
         .catch((error) => {
@@ -188,6 +230,8 @@ module.exports = {
         });
     });
   },
+  
+  
 
   // Additional controller methods as needed
 };

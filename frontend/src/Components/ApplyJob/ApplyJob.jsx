@@ -20,8 +20,8 @@ const ApplyJob = () => {
   const { id } = useParams();
   const [activeStep, setActiveStep] = useState(0);
   const [uploadedFilename, setUploadedFilename] = useState("");
-  const [resume, setResume] = useState("");
-  //   const [newResume, setNewResume] = useState(false);
+  let [resume, setResume] = useState("");
+  //const [newResume, setNewResume] = useState(false);
   const [formData, setFormData] = useState({
     firstname: "",
     last_name: "",
@@ -30,13 +30,7 @@ const ApplyJob = () => {
     current_position: "",
     current_company: "",
     yearOfExp: "",
-    my_resume: "",
-    current_ctc: "",
-    expected_ctc: "",
-    notice_period: "",
-    available_dates: "",
-    relocate: "",
-    profile_link: "",
+    resume: null,
   });
 
   // Quiz related states
@@ -44,11 +38,21 @@ const ApplyJob = () => {
   const [quizCompleted, setQuizCompleted] = useState(false);
 
   const handleNextReport = () => {
-    if (activeStep === steps.indexOf('Quiz')) {
+    if (activeStep === 0) {
+      // If activeStep is at Step 1, call handleSubmitStep1
+      handleSubmitStep1();
+    } else if (activeStep === 1) {
+      setActiveStep((prevActiveStep) => prevActiveStep);
+      handleNext();
+      // Check if the current step is the quiz step
+      
+    }
+    else if (activeStep === steps.indexOf('Quiz')) {
       // Check if the current step is the quiz step
       setQuizScore(quizScore); // Pass the quiz score to the next step
     }
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    // Move to the next step
+    //setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   useEffect(() => {
@@ -73,26 +77,207 @@ const ApplyJob = () => {
   const [currentUser, setCurrentUser] = useState(null);
 
   const handleFileChange = (e) => {
-    setResume(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      console.log("Selected file:", selectedFile); // Log the selected file
+      setResume(selectedFile); // Update the resume state with the selected file
+    }
   };
 
+  
   const handleUpload = async () => {
     try {
-      const formData = new FormData();
-      formData.append("resume", resume);
-      formData.append("userId", userData?._id); // Directly append userId to formData
+      if (!resume) {
+        console.error("No file selected.");
+        return;
+      }
 
-      const response = await axios.post(API_ENDPOINTS.uploadResume, formData, {
+      console.log("Resume state before upload:", resume); // Log the resume state
+
+      // Create a new FormData object
+      const formData1 = new FormData();
+      formData1.append("resume", resume);
+
+      console.log("Form Data before upload:", [...formData1]);
+
+      // Send the POST request to upload the resume
+      const response = await axios.post(API_ENDPOINTS.uploadResume, formData1, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      setUploadedFilename(response.data.filename);
+      const uploadedFilename = response.data.filename;
+      console.log("Upload response:", response.data);
+      console.log("Uploaded filename:", uploadedFilename);
+
+      setUploadedFilename(uploadedFilename);
     } catch (error) {
       console.error("Error uploading file:", error.message);
     }
   };
+
+
+  const handleSubmitStep1 = async () => {
+    try {
+      const jobId = id;
+      const userId = userData._id;
+  
+      console.log("resume", resume);
+      console.log("uploadedFilename", uploadedFilename);
+  
+      // Ensure resume and uploadedFilename are set before proceeding
+      if (!resume || !uploadedFilename) {
+        console.error("Resume or filename not set.");
+        return;
+      }
+  
+      // Create the request data object
+      const requestData = {
+        firstname: formData.firstname,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone: formData.phone,
+        current_position: formData.current_position,
+        current_company: formData.current_company,
+        yearOfExp: formData.yearOfExp,
+        resume: resume,
+        resumeFileName: uploadedFilename,
+        jobId: jobId,
+        userId: userId
+      };
+  
+      console.log("Request Data (Step 1) before submitting:", requestData);
+  
+      const responseStep1 = await axios.post(API_ENDPOINTS.getResume, requestData, {
+        headers: {
+          "Content-Type": "application/json", // Change content type to JSON
+        },
+      });
+  
+      console.log("step 1 data:", jobId, userId, formData);
+  
+      if (responseStep1 && responseStep1.status === 200) {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Something went wrong.",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting Step 1 data:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "An error occurred while submitting Step 1 data.",
+      });
+    }
+  };
+  
+  
+  
+  
+  // const handleSubmitStep1 = async () => {
+  //   try {
+  //     // Upload resume before proceeding
+  //     //await handleUploadResume();
+  
+  //     const jobId = id;
+  //     const userId = userData._id;
+  
+  //     // Create a new FormData object
+  //     const formDataWithResume = new FormData();
+  
+  //     // Append Step 1 fields to the new FormData object
+  //     formDataWithResume.append("firstname", formData.firstname);
+  //     formDataWithResume.append("last_name", formData.last_name);
+  //     formDataWithResume.append("email", formData.email);
+  //     formDataWithResume.append("phone", formData.phone);
+  //     formDataWithResume.append("current_position", formData.current_position);
+  //     formDataWithResume.append("current_company", formData.current_company);
+  //     formDataWithResume.append("yearOfExp", formData.yearOfExp);
+  //     // Append the entire file to formData
+  //     formDataWithResume.append("resume", resume); // Assuming 'resume' contains the file
+  //     formDataWithResume.append("resumeFileName", uploadedFilename);
+  
+  //     console.log("Form Data (Step 1) before submitting:", [...formDataWithResume]);
+
+      
+  //      //{ data: { ...formData, jobId, userId } }
+  //      const responseStep1 = await axios.post(API_ENDPOINTS.getResume, formDataWithResume, {
+  //       params: {
+  //           jobId,
+  //           userId,
+  //       },
+  //       headers: {
+  //           "Content-Type": "multipart/form-data",
+  //       },
+  //   });
+  //     console.log("step 1 data:", jobId, userId, formData);
+  
+  //     if (responseStep1 && responseStep1.status === 200) {
+  //       setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Error!",
+  //         text: "Something went wrong.",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error submitting Step 1 data:", error);
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error!",
+  //       text: "An error occurred while submitting Step 1 data.",
+  //     });
+  //   }
+  // };
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  // const handleUpload = async () => {
+  //   try {
+  //     if (!resume) {
+  //       console.error("No file selected.");
+  //       return;
+  //     }
+  
+  //     console.log("Resume state before upload:", resume);
+  
+  //     // Create a new FormData object
+  //     const formData = new FormData();
+  
+  //     // Append the resume file to the formData object
+  //     formData.append("resume", resume);
+  
+  //     console.log("Form Data before upload:", formData);
+  
+  //     // Send the FormData to the uploadResume API endpoint
+  //     const response = await axios.post(API_ENDPOINTS.uploadResume, formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+  
+  //     // Handle the response as needed
+  //     console.log("Upload response:", response.data);
+  //   } catch (error) {
+  //     console.error("Error uploading file:", error.message);
+  //   }
+  // };
+  
+  
+
 
 
   useEffect(() => {
@@ -129,6 +314,8 @@ const ApplyJob = () => {
   };
 
   const [processing, setProcessing] = useState(false);
+
+  
 
   const handleSubmit = async () => {
     setProcessing(true);
