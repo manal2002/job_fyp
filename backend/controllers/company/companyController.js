@@ -128,29 +128,6 @@
 //   }
 // };
 
-
-const Jobs = require("../../models/jobModal");
-const AppliedJobs = require("../../models/appliedJobs");
-const User = require("../../models/userModal");
-const { successResponse, errorResponse } = require("../../constants/response");
-
-module.exports = {
-  // Function to add a job
-  addJob: (data) => {
-    console.log("Data received for adding job:", data);
-    return new Promise((resolve, reject) => {
-      Jobs.create(data)
-        .then(() => {
-          console.log("Job added successfully");
-          resolve(successResponse("Job added successfully"));
-        })
-        .catch((error) => {
-          console.error("Error adding job:", error);
-          reject(errorResponse("Error adding job", error));
-        });
-    });
-  },
-
   // Function to get jobs posted by the company along with applied candidates
   // getMyJobs: () => {
   //   return new Promise((resolve, reject) => {
@@ -189,6 +166,31 @@ module.exports = {
   //   });
   // },
 
+
+const Jobs = require("../../models/jobModal");
+const AppliedJobs = require("../../models/appliedJobs");
+const User = require("../../models/userModal");
+const { successResponse, errorResponse } = require("../../constants/response");
+
+module.exports = {
+  // Function to add a job
+  addJob: (data) => {
+    console.log("Data received for adding job:", data);
+    return new Promise((resolve, reject) => {
+      Jobs.create(data)
+        .then(() => {
+          console.log("Job added successfully");
+          resolve(successResponse("Job added successfully"));
+        })
+        .catch((error) => {
+          console.error("Error adding job:", error);
+          reject(errorResponse("Error adding job", error));
+        });
+    });
+  },
+
+
+
   getMyJobs: () => {
     return new Promise((resolve, reject) => {
       Jobs.find()
@@ -200,7 +202,7 @@ module.exports = {
               .populate({
                 path: 'appliedUsers.user', // Populate the 'user' field of 'appliedUsers'
                 model: 'User',
-                select: 'firstName lastName email', // Select necessary fields from User model
+                select: 'firstName lastName email resume', // Select necessary fields from User model
               })
               .populate({
                 path: 'appliedUsers', // Populate the 'quizScore' field of 'appliedUsers'
@@ -230,8 +232,71 @@ module.exports = {
         });
     });
   },
-  
-  
 
-  // Additional controller methods as needed
+  openResume: async (req, res) => {
+    try {
+      const { userId, resumeFilename } = req.params;
+
+      console.log("UserID:", userId);
+      console.log("Resume filename:", resumeFilename);
+
+      // Find the user by userId
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Check if the resumeFilename matches the user's resume
+      if (user.resume !== resumeFilename) {
+        return res.status(404).json({ message: 'Resume not found' });
+      }
+
+      // Construct the path to the resume file
+      const filePath = path.join(__dirname, '..', '..', 'uploads', resumeFilename);
+
+      // Send the resume file as a download
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error('Error sending resume:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+
+  getJobStatistics: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalJobs = await Jobs.countDocuments({});
+        const activeJobs = await Jobs.countDocuments({ status: "active" });
+        const closedJobs = await Jobs.countDocuments({ status: "closed" });
+
+        const appliedCandidatesAggregate = await AppliedJobs.aggregate([
+          { $unwind: "$appliedUsers" },
+          { $count: "totalAppliedUsers" }
+        ]);
+
+        const appliedCandidates = appliedCandidatesAggregate[0] ? appliedCandidatesAggregate[0].totalAppliedUsers : 0;
+
+        console.log({
+          totalJobs,
+          activeJobs,
+          closedJobs,
+          appliedCandidates
+        });
+
+        const statistics = {
+          totalJobs,
+          activeJobs,
+          closedJobs,
+          appliedCandidates
+        };
+
+        resolve(successResponse("Job statistics fetched successfully", statistics));
+      } catch (error) {
+        console.error("Error fetching job statistics:", error);
+        reject(errorResponse("Error fetching job statistics", error));
+      }
+    });
+  },
+
 };

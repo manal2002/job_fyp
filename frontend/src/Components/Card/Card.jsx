@@ -19,7 +19,7 @@
 
 // export default function OutlinedCard({ data }) {
 //   const gotoJobDetailsPage = (jobId) => {
-//     window.location.href = `/job/${jobId}`;
+//     window.location.href = /job/${jobId};
 //   };
 
 //   return (
@@ -55,7 +55,7 @@
 //                   {job?.jobTitle}
 //                 </Typography>
 //                 {job?.jobType && (
-//                   <div className={`job-type ${job?.jobType}`}>
+//                   <div className={job-type ${job?.jobType}}>
 //                     {job?.jobType}
 //                   </div>
 //                 )}
@@ -153,7 +153,7 @@
 
 // export default function OutlinedCard({ data }) {
 //   const gotoJobDetailsPage = (jobId) => {
-//     window.location.href = `/job/${jobId}`;
+//     window.location.href = /job/${jobId};
 //   };
 
 //   return (
@@ -204,7 +204,6 @@
 //   );
 // }
 
-
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -216,19 +215,19 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import MoneyIcon from "@mui/icons-material/Money";
 import WorkIcon from "@mui/icons-material/Work";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import Chip from "@mui/material/Chip";
 import { styled } from "@mui/material/styles";
 
 const CustomCard = styled(Card)({
-  backgroundColor: "rgba(255, 255, 255, 0.8)",
-  backdropFilter: "blur(10px)",
-  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+  backgroundColor: "#fff",
+  borderRadius: "15px",
+  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+  transition: "box-shadow 0.3s ease",
   "&:hover": {
-    boxShadow: "0 6px 12px rgba(0,0,0,0.2)",
+    boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.2)",
   },
   margin: "16px 0",
-  borderRadius: "15px",
-  overflow: "hidden",
-  transition: "all 0.3s ease",
 });
 
 const HeaderBox = styled(Box)({
@@ -238,6 +237,8 @@ const HeaderBox = styled(Box)({
   padding: "8px 16px",
   background: "linear-gradient(135deg, #7B1FA2, #BA68C8)",
   color: "#FFFFFF",
+  borderTopLeftRadius: "15px",
+  borderTopRightRadius: "15px",
 });
 
 const JobTypeTag = styled("div")({
@@ -252,7 +253,7 @@ const JobTypeTag = styled("div")({
 const ViewMoreButton = styled(Button)({
   borderColor: "#9C27B0",
   color: "#9C27B0",
-  '&:hover': {
+  "&:hover": {
     backgroundColor: "#9C27B0",
     color: "#FFFFFF",
   },
@@ -265,49 +266,71 @@ export default function OutlinedCard({ data }) {
 
   return (
     <Box>
-      {data && data.length > 0 && data.map((job) => (
-        <CustomCard variant="outlined" key={job?._id}>
-          <HeaderBox>
-            <Typography variant="subtitle1">New</Typography>
-            <BookmarkBorderIcon style={{ color: "#FFFFFF" }} />
-          </HeaderBox>
-          <CardContent>
-            <Typography
-              variant="h5"
-              component="div"
-              sx={{ fontWeight: "bold", cursor: "pointer", marginBottom: "8px", fontFamily: "Roboto, sans-serif" }}
-              onClick={() => gotoJobDetailsPage(job?._id)}
-              color="primary"
-            >
-              {job?.jobTitle}
-            </Typography>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-              <WorkIcon style={{ marginRight: "4px" }} />
-              <Typography variant="body2" color="textSecondary">{job?.jobType}</Typography>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-              <WorkIcon style={{ marginRight: "4px" }} />
-              <Typography variant="body2" color="textSecondary">{job?.jobExperience}</Typography>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-              <LocationOnIcon style={{ marginRight: "4px" }} />
-              <Typography variant="body2" color="textSecondary">{job?.location}</Typography>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-              <MoneyIcon style={{ marginRight: "4px" }} />
-              <Typography variant="body2" color="textSecondary">{job?.salary}</Typography>
-            </div>
-          </CardContent>
-          <CardActions>
-            <ViewMoreButton
-              size="small"
-              onClick={() => gotoJobDetailsPage(job?._id)}
-            >
-              View More
-            </ViewMoreButton>
-          </CardActions>
-        </CustomCard>
-      ))}
-    </Box>
-  );
+      {data && data.length > 0 ? (
+        data.map((job) => (
+          <CustomCard variant="outlined" key={job?._id}>
+            <HeaderBox>
+              <Typography variant="subtitle1">{job?.companyName || "Company Name Not Available"}</Typography>
+              <BookmarkBorderIcon style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: "24px" }} />
+            </HeaderBox>
+            <CardContent>
+              <Typography
+                variant="h5"
+                component="div"
+                sx={{
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  marginBottom: "8px",
+                  fontFamily: "Roboto, sans-serif",
+                }}
+                onClick={() => gotoJobDetailsPage(job?._id)}
+                color="primary"
+              >
+                {job?.jobTitle || "Job Title Not Available"}
+              </Typography>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                <WorkIcon style={{ color: "#7B1FA2", marginRight: "4px" }} />
+                <Typography variant="body2" color="textPrimary">{job?.jobType || "Job Type Not Available"}</Typography>
+                <LocationOnIcon style={{ color: "#7B1FA2", marginLeft: "16px", marginRight: "4px" }} />
+                <Typography variant="body2" color="textPrimary">{job?.location || "Location Not Available"}</Typography>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                <MoneyIcon style={{ color: "#7B1FA2", marginRight: "4px" }} />
+                <Typography variant="body2" color="textPrimary">{job?.salary ? `${job.salary} PKR / MONTH` : "Salary Not Available"}</Typography>
+                <AccessTimeIcon style={{ color: "#7B1FA2", marginLeft: "16px", marginRight: "4px" }} />
+                <Typography variant="body2" color="textPrimary">Deadline: {job?.applicationDeadline || "Deadline Not Available"}</Typography>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                {job?.requiredSkills && job?.requiredSkills.map((skill, index) => (
+                  <Chip key={index} label={skill} color="primary" style={{ marginRight: "8px" }} />
+                ))}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                <Typography variant="body2" color="textPrimary">{job?.companyDescription || "Company Description Not Available"}</Typography>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+  {(Array.isArray(job?.jobSkills) ? job?.jobSkills : [job?.jobSkills]).map((skill, index) => (
+    <Chip key={index} label={skill} color="secondary" style={{ marginRight: "8px" }} />
+  ))}
+</div>
+
+
+
+
+            </CardContent>
+            <CardActions>
+              <ViewMoreButton
+                size="small"
+                onClick={() => gotoJobDetailsPage(job?._id)}
+              >
+                View More
+              </ViewMoreButton>
+            </CardActions>
+          </CustomCard>
+        ))
+      ) : (
+        <Typography variant="body1">No jobs available</Typography>
+      )}
+    </Box>
+  );
 }

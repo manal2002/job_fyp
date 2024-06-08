@@ -8,18 +8,21 @@ const adminRouter = require("./routes/admin/routes");
 const authRouter = require("./routes/auth/routes");
 const db = require("./config/db");
 
+dotenv.config(); // Load environment variables from .env file
+
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 5000;
+const dbUrl = process.env.DB_URL; // Get MongoDB connection URL from environment variable
 
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-dotenv.config();
+//dotenv.config();
 
 // Database configuration
-db.connect();
+db.connect(dbUrl);
 
 app.use("/api/candidate", candidateRouter);
 app.use("/api/company", companyRouter);

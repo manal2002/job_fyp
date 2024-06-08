@@ -6,6 +6,9 @@ import { CheckCircleOutlineOutlined, RadioButtonUncheckedOutlined, TimerOutlined
 import "./score.css";
 import axios from 'axios';
 import API_ENDPOINTS from "../../Api";
+import { useParams } from "react-router-dom";
+
+//import Loader from "../Loader";
 
 
 const ScoreMeter = ({ score }) => {
@@ -90,7 +93,7 @@ const ScoreMeter = ({ score }) => {
 //   }
 // ];
 
-const QuizComponent = ({ passScore, setQuizCompleted }) => {
+const QuizComponent = ({passScore, setQuizCompleted, matchedScore, matchedSkills }) => {
   const [isQuizStarted, setIsQuizStarted] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -100,11 +103,82 @@ const QuizComponent = ({ passScore, setQuizCompleted }) => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const chartRef = useRef(null);
   const [quizScore, setQuizScore] = useState(null);
+  const { id } = useParams();
+
+  const [userData, setUserData] = useState(
+    JSON.parse(localStorage.getItem("userData"))
+  );
+
+  useEffect(() => {
+    // Retrieve userData from localStorage
+    const storedUserData = localStorage.getItem("userData");
+
+    // Check if storedUserData exists and is valid JSON
+    if (storedUserData) {
+      try {
+        // Parse storedUserData as JSON
+        const parsedUserData = JSON.parse(storedUserData);
+        
+        // Update userData state with parsedUserData
+        setUserData(parsedUserData);
+      } catch (error) {
+        // Handle JSON parsing error
+        console.error("Error parsing userData:", error);
+      }
+    } else {
+      // Handle case where userData is not found in localStorage
+      console.error("userData not found in localStorage");
+    }
+  }, []); // Run th
+
+
+
+  const jobId = id; // id comes from useParams()
+
+    
+  const userId = userData._id;
+  
   //const [isQuizCompleted, setQuizCompleted] = useState(false);
 
+  //console.log(userId, jobId)
 
-  const jobDescription = "We are looking for a software engineer proficient in Python and Java, with strong problem-solving skills and experience with SQL databases.";
-  const skills = "Python, Java, SQL, problem-solving";
+
+  //const jobDescription = "We are looking for a software engineer proficient in Python and Java, with strong problem-solving skills and experience with SQL databases.";
+  //const skills = "Python, Java, SQL, problem-solving";
+
+  // Global string variables
+  const [jobDescription, setJobDescription] = useState('');
+  const [jobSkills, setJobSkills] = useState('');
+  const [scoreMatch, setMatchScore] = useState(matchedScore);
+  const [skillMatch, setSkillMatch] = useState(matchedSkills);
+
+  // Function to fetch job description, skills, match score, and skill match
+  // Function to fetch job data
+  // const fetchJobData = async () => {
+  //   try {
+  //     // Fetch job data from both schemas
+  //     const jobResponse = await axios.get(API_ENDPOINTS.getJobDetails + `/${jobId}`); // Adjust the endpoint as per your API
+  //     const appliedJobsResponse = await axios.get(API_ENDPOINTS.getResume + `/${userId}/${jobId}`); // Adjust the endpoint as per your API
+
+  //     // Extract relevant data from responses
+  //     const jobData = jobResponse.data;
+  //     const appliedJobsData = appliedJobsResponse.data;
+
+  //     // Set job description and skills from the Jobs schema
+  //     setJobDescription(jobData.jobDescription);
+  //     setJobSkills(jobData.jobSkills);
+
+  //     // Set match score and skill match from the AppliedJobs schema
+  //     setMatchScore(appliedJobsData.matchScore.toString());
+  //     setSkillMatch(appliedJobsData.matchSkills);
+  //   } catch (error) {
+  //     console.error('Error fetching job data:', error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchJobData(); // Fetch job data when component mounts
+  // }, []); // Run once on mount
 
   useEffect(() => {
     if (showReport) {
@@ -182,6 +256,13 @@ const QuizComponent = ({ passScore, setQuizCompleted }) => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
+      const jobResponse = await axios.get(API_ENDPOINTS.getJobDetails+`/${id}`);
+      const jobData = jobResponse.data;
+      console.log('jobData:', jobData);
+      console.log('jobData.data.jobDescription:', jobData.data.jobDescription);
+      const jobDescription =  jobData.data.jobDescription; // Assuming jobDescription is stored in jobData
+      console.log('jobDescription:', jobDescription);
+      console.log("OpenAI API Key:", process.env.REACT_APP_OPENAI_API_KEY);
       try {
         sessionStorage.removeItem('questions');
 
@@ -211,19 +292,19 @@ const QuizComponent = ({ passScore, setQuizCompleted }) => {
                                 }
                               ]
                               
-                              The system will receive a job description and skills extracted from a candidate's resume. Given the job description and resume, generate 1 multiple-choice questions (MCQs) with 4 options each. These questions should focus on problem-solving, algorithmic thinking, and coding skills and should be LeetCode style questions
-                    
+                              The system will receive a job description and skills extracted from a candidate's resume. Given the job description and resume, generate 5 multiple-choice questions (MCQs) with 4 options each. These questions should focus on problem-solving, algorithmic thinking, and coding skills and all should be LeetCode style questions
+
                               Instructions:
-                    
-                              Generate MCQs of difficulty level easy, medium, and hard.
-                    
+
+                              Generate 2 MCQs of difficulty level medium, 3 MCQ of difficulty level hard .
+
                               Requirements:
-                    
+
                               Each question should have 4 options.
                               Do not mention the difficulty level in the question, only the question itself.
                               Ensure each question is complete, without any cutoffs.
                               Exclude any special characters, slashes, or extra information.
-                              Provide exactly 3 questions, no more, no less.`
+                              Provide exactly 5 questions, no more, no less.`
                                     },
                                     {
                                         "role": "user",
@@ -231,7 +312,7 @@ const QuizComponent = ({ passScore, setQuizCompleted }) => {
                                             ${jobDescription}
                     
                                             Skills:
-                                            ${skills}`
+                                            ${skillMatch}`
                                     }
                                 ],
                                 "max_tokens": 1000,
@@ -240,9 +321,13 @@ const QuizComponent = ({ passScore, setQuizCompleted }) => {
                             };
 
         const response = await axios.post('https://api.openai.com/v1/chat/completions', payload, {
+          // headers: {
+          //   'Content-Type': 'application/json',
+          //   'Authorization': 'Bearer ${process.env.REACT_APP_OPENAI_API_KEY}' // Replace with your OpenAI API key
+          // }
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ${openaiApiKey}' // Replace with your OpenAI API key
+            'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`
           }
         });
 
@@ -353,7 +438,14 @@ const QuizComponent = ({ passScore, setQuizCompleted }) => {
 
   const renderQuiz = () => {
     if (!questions.length) {
-      return <div>Loading questions...</div>;
+      return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <CircularProgress color="primary" size={80} thickness={4} />
+          <p style={{ marginTop: '10px', fontSize: '1.2em' }}>Loading...</p>
+        </div>
+      </div>
+      );
     }
 
     const currentQuestion = questions[currentQuestionIndex];
@@ -459,11 +551,40 @@ const QuizComponent = ({ passScore, setQuizCompleted }) => {
   };
 
   const renderStartQuizButton = () => (
-    <Container>
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Button variant="contained" color="primary" onClick={startQuiz}>Start Quiz</Button>
-      </Box>
-    </Container>
+<Container>
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'row', // Change to row to align items horizontally
+      alignItems: 'center',
+      justifyContent: 'space-between', // Distribute space evenly between children
+      height: '600px',
+      backgroundColor: '#ffffff',
+      borderRadius: '10px',
+      padding: '30px',
+      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+    }}
+  >
+    <div style={{ textAlign: 'center', flex: '1' }}> {/* Text container */}
+  <Typography variant="h4" style={{ color: '#700c93', fontWeight: 'bold', marginBottom: '70px' }}>
+    Your Skill Evaluation Process <br /> is About to Start
+  </Typography>
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={startQuiz}
+    sx={{ backgroundColor: '#700c93', color: '#ffffff', '&:hover': { backgroundColor: '#5c0b7e' } }}
+  >
+    Start Quiz
+  </Button>
+</div>
+    <div style={{ flex: '1', textAlign: 'right' }}> {/* Image container */}
+      <img src="/34.jpg" alt="Your Image" style={{ width: '130%', height: '150%', maxWidth: '500px' }} />
+    </div>
+  </Box>
+</Container>
+
+
   );
 
   return (

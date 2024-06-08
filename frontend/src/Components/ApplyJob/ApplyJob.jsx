@@ -13,8 +13,12 @@ import axios from "axios";
 import API_ENDPOINTS from "../../Api";
 import Swal from "sweetalert2";
 import QuizComponent from './QuizComponent';
+import CircularProgress from '@mui/material/CircularProgress';
+import Chip from '@mui/material/Chip';
 
-const steps = ['Step 1', 'Step 2', 'Quiz', 'Verification'];
+
+
+const steps = ['Candidate Details', 'Skills Extraction', 'Quiz', 'Verification'];
 
 const ApplyJob = () => {
   const { id } = useParams();
@@ -37,12 +41,22 @@ const ApplyJob = () => {
   const [quizScore, setQuizScore] = useState(null);
   const [quizCompleted, setQuizCompleted] = useState(false);
 
+  const [matchedSkills, setMatchedSkills] = useState([]);
+  const [matchedScore, setMatchedScore] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 15; // Maximum number of retry attempts
+  const [loadingStep1, setLoadingStep1] = useState(false); // Loading state for Step 1
+  const [jobSkills, setJobSkills] = useState([]); // State to store job skills
+
   const handleNextReport = () => {
     if (activeStep === 0) {
       // If activeStep is at Step 1, call handleSubmitStep1
       handleSubmitStep1();
     } else if (activeStep === 1) {
       setActiveStep((prevActiveStep) => prevActiveStep);
+      fetchData();
+
       handleNext();
       // Check if the current step is the quiz step
       
@@ -54,6 +68,13 @@ const ApplyJob = () => {
     // Move to the next step
     //setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
+
+  useEffect(() => {
+    // Fetch data for Step 2 when activeStep becomes 2
+    if (activeStep === 1) {
+      fetchData(); // Call fetchData function for Step 2
+    }
+  }, [activeStep]);
 
   useEffect(() => {
     // Check if the quiz is completed
@@ -120,6 +141,7 @@ const ApplyJob = () => {
 
   const handleSubmitStep1 = async () => {
     try {
+      setLoadingStep1(true); // Set loading state for Step 1
       const jobId = id;
       const userId = userData._id;
   
@@ -149,11 +171,13 @@ const ApplyJob = () => {
   
       console.log("Request Data (Step 1) before submitting:", requestData);
   
-      const responseStep1 = await axios.post(API_ENDPOINTS.getResume, requestData, {
+      const responseStep1 = await axios.post(API_ENDPOINTS.postResume, requestData, {
         headers: {
           "Content-Type": "application/json", // Change content type to JSON
         },
       });
+
+      setLoadingStep1(false); // Set loading state for Step 1
   
       console.log("step 1 data:", jobId, userId, formData);
   
@@ -166,6 +190,8 @@ const ApplyJob = () => {
           text: "Something went wrong.",
         });
       }
+      setLoadingStep1(false); // Set loading state for Step 1
+
     } catch (error) {
       console.error("Error submitting Step 1 data:", error);
       Swal.fire({
@@ -178,124 +204,30 @@ const ApplyJob = () => {
   
   
   
-  
-  // const handleSubmitStep1 = async () => {
-  //   try {
-  //     // Upload resume before proceeding
-  //     //await handleUploadResume();
-  
-  //     const jobId = id;
-  //     const userId = userData._id;
-  
-  //     // Create a new FormData object
-  //     const formDataWithResume = new FormData();
-  
-  //     // Append Step 1 fields to the new FormData object
-  //     formDataWithResume.append("firstname", formData.firstname);
-  //     formDataWithResume.append("last_name", formData.last_name);
-  //     formDataWithResume.append("email", formData.email);
-  //     formDataWithResume.append("phone", formData.phone);
-  //     formDataWithResume.append("current_position", formData.current_position);
-  //     formDataWithResume.append("current_company", formData.current_company);
-  //     formDataWithResume.append("yearOfExp", formData.yearOfExp);
-  //     // Append the entire file to formData
-  //     formDataWithResume.append("resume", resume); // Assuming 'resume' contains the file
-  //     formDataWithResume.append("resumeFileName", uploadedFilename);
-  
-  //     console.log("Form Data (Step 1) before submitting:", [...formDataWithResume]);
 
-      
-  //      //{ data: { ...formData, jobId, userId } }
-  //      const responseStep1 = await axios.post(API_ENDPOINTS.getResume, formDataWithResume, {
-  //       params: {
-  //           jobId,
-  //           userId,
-  //       },
-  //       headers: {
-  //           "Content-Type": "multipart/form-data",
-  //       },
-  //   });
-  //     console.log("step 1 data:", jobId, userId, formData);
-  
-  //     if (responseStep1 && responseStep1.status === 200) {
-  //       setActiveStep((prevActiveStep) => prevActiveStep + 1);
+
+
+  // const fetchData = async () => {
+  //   try {
+  //     await new Promise(resolve => setTimeout(resolve, 10000)); // Add a delay of 10 seconds
+  //     const response = await axios.get(API_ENDPOINTS.getResume + `/${userData._id}/${id}`);
+  //     const { data, message, success } = response.data;
+  //     if (success) {
+  //       const { matchedSkills, matchScore } = data;
+  //       setMatchedSkills(matchedSkills);
+  //       setMatchedScore(matchScore);
+  //       setLoading(false); // Set loading state to false after data is fetched
   //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Error!",
-  //         text: "Something went wrong.",
-  //       });
+  //       console.error("Error fetching matched skills:", message);
+  //       setLoading(false); // Set loading state to false on error
   //     }
   //   } catch (error) {
-  //     console.error("Error submitting Step 1 data:", error);
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Error!",
-  //       text: "An error occurred while submitting Step 1 data.",
-  //     });
+  //     console.error("Error fetching matched skills:", error);
+  //     setLoading(false); // Set loading state to false on error
   //   }
   // };
-  
-  
-  
-  
-  
-  
-  
-  
 
 
-  // const handleUpload = async () => {
-  //   try {
-  //     if (!resume) {
-  //       console.error("No file selected.");
-  //       return;
-  //     }
-  
-  //     console.log("Resume state before upload:", resume);
-  
-  //     // Create a new FormData object
-  //     const formData = new FormData();
-  
-  //     // Append the resume file to the formData object
-  //     formData.append("resume", resume);
-  
-  //     console.log("Form Data before upload:", formData);
-  
-  //     // Send the FormData to the uploadResume API endpoint
-  //     const response = await axios.post(API_ENDPOINTS.uploadResume, formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-  
-  //     // Handle the response as needed
-  //     console.log("Upload response:", response.data);
-  //   } catch (error) {
-  //     console.error("Error uploading file:", error.message);
-  //   }
-  // };
-  
-  
-
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(API_ENDPOINTS.getProfile + `/${userData?._id}`);
-        const userData = response?.data?.data;
-        console.log("User data:", userData);
-
-        // Set the user ID in component state
-        setUserId(userData?._id);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -369,8 +301,46 @@ const ApplyJob = () => {
 
  };
 
+ const fetchData = async () => {
+  try {
+    const [resumeMatchResponse, jobResponse] = await Promise.all([
+      axios.get(API_ENDPOINTS.getResume + `/${userData._id}/${id}`),
+      axios.get(API_ENDPOINTS.getJobDetails + `/${id}`),
+    ]);
 
-    
+    const resumeMatchData = resumeMatchResponse.data;
+    const jobData = jobResponse.data;
+
+    if (resumeMatchData.success && jobData.success) {
+      const resumeMatchedSkills = resumeMatchData.data.matchedSkills;
+      //const jobData = jobResponse.data;
+      console.log('jobData:', jobData);
+      console.log('jobData.data.jobSkills:', jobData.data.jobSkills);
+      const jobSkills =  jobData.data.jobSkills; // Assuming jobDescription is stored in jobData
+      //console.log('jobDescription:', jobDescription);
+      console.log("skills:", jobSkills);
+
+      setMatchedSkills(resumeMatchedSkills);
+      setMatchedScore(resumeMatchData.data.matchScore);
+      setJobSkills(jobSkills);
+
+      setLoading(false);
+    } else {
+      console.error("Error fetching data");
+      setLoading(false);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchData(); // Call fetchData within the useEffect hook
+}, []);
+
+
+
 
   
 
@@ -391,6 +361,7 @@ const ApplyJob = () => {
               <Paper elevation={3} style={{ padding: "20px", margin: "20px" }}>
                 <Typography variant="h5">Verification Details:</Typography>
                 <div className="mt-4">
+                <hr />
                   <Typography
                     variant="h5"
                     style={{
@@ -466,6 +437,7 @@ const ApplyJob = () => {
                   </div>
                 </div>
                 <div className="mt-4">
+                <hr />
                 <Typography
                     variant="h5"
                     style={{
@@ -476,13 +448,20 @@ const ApplyJob = () => {
                   >
                     Quiz Score
                   </Typography>
-                  <br />
+                  <hr />
+        
                   {quizScore !== null && (
-                  <Typography variant="h6">Quiz Score: {quizScore}%</Typography>
+                  //<Typography>Quiz Score: {quizScore}%</Typography>
+                  <Typography>
+                      <span style={{ fontWeight: "bold" }}>Quiz Score:</span>{" "}
+                      {quizScore}%
+                    </Typography>
                 )}
 
-
-
+                <br/>
+                <br/>
+                  
+                <hr />
                   <Typography
                     variant="h5"
                     style={{
@@ -491,43 +470,22 @@ const ApplyJob = () => {
                       color: "darkcyan",
                     }}
                   >
-                    Company asked questions
+                    Matched Skils
                   </Typography>
                   <hr />
                   <div className="mt-2">
                     <Typography>
-                      <span style={{ fontWeight: "bold" }}>Current CTC:</span>{" "}
-                      {formData.current_ctc}
+                      <span style={{ fontWeight: "bold" }}>Matched Skills:</span>{" "}
+                      {matchedSkills.join(", ")}
                     </Typography>
                     <br />
                     <Typography>
-                      <span style={{ fontWeight: "bold" }}>Expecting CTC:</span>{" "}
-                      {formData.expected_ctc}
+                      <span style={{ fontWeight: "bold" }}>Matched Score</span>{" "}
+                      {matchedScore.toFixed(2)}%
                     </Typography>
                     <br />
-                    <Typography>
-                      <span style={{ fontWeight: "bold" }}>Notice Period:</span>{" "}
-                      {formData.notice_period}
-                    </Typography>
+                    
                     <br />
-                    <Typography>
-                      <span style={{ fontWeight: "bold" }}>
-                        Available dates for Interview:
-                      </span>{" "}
-                      {formData.available_dates}
-                    </Typography>
-                    <br />
-                    <Typography>
-                      <span style={{ fontWeight: "bold" }}>
-                        Will you be able to relocate:
-                      </span>{" "}
-                      {formData.relocate}
-                    </Typography>
-                    <br />
-                    <Typography>
-                      <span style={{ fontWeight: "bold" }}>Extra Links:</span>{" "}
-                      {formData.profile_link}
-                    </Typography>
                     <br />
                   </div>
                 </div>
@@ -543,201 +501,188 @@ const ApplyJob = () => {
             </div>
           ) : (
             <div>
-              {activeStep === 0 && (
-                <>
-                  <div className="row mt-5">
-                    <div className="col-md-6">
-                      <p>First Name</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="firstname"
-                        required={true}
-                        value={formData.firstname}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Last Name</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="last_name"
-                        value={formData.last_name}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Email Address</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Contact Numbe (with country code)</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Current Role</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="current_position"
-                        value={formData.current_position}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Current Company</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="current_company"
-                        value={formData.current_company}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Total year of experience</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="yearOfExp"
-                        value={formData.yearOfExp}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label>Resume/CV:</label>
-                      <div className="mt-3" style={{ color: "red" }}>
-                        <label>
-                          <input
-                            type="radio"
-                            value={false}
-                            name="resumeOption"
-                            onChange={handleRadioChange}
-                          />
-                          Use existing resume
-                        </label>
-                        {"     "}
+  {activeStep === 0 && (
+    <>
+      {loadingStep1 ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <CircularProgress color="primary" size={80} thickness={4} />
+          <p style={{ marginTop: '10px', fontSize: '1.2em' }}>Please wait, your skills are being extracted...</p>
+        </div>
+      </div>
+      
+      ) : (
+        <div className="row mt-5">
+          <div className="col-md-6">
+            <p>First Name</p>
+            <input
+              type="text"
+              className="form-control"
+              name="firstname"
+              required={true}
+              value={formData.firstname}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <p>Last Name</p>
+            <input
+              type="text"
+              className="form-control"
+              name="last_name"
+              value={formData.last_name}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <p>Email Address</p>
+            <input
+              type="text"
+              className="form-control"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <p>Contact Number (with country code)</p>
+            <input
+              type="text"
+              className="form-control"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <p>Current Role</p>
+            <input
+              type="text"
+              className="form-control"
+              name="current_position"
+              value={formData.current_position}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <p>Current Company</p>
+            <input
+              type="text"
+              className="form-control"
+              name="current_company"
+              value={formData.current_company}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <p>Total year of experience</p>
+            <input
+              type="text"
+              className="form-control"
+              name="yearOfExp"
+              value={formData.yearOfExp}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="col-md-6">
+            <label>Resume/CV:</label>
+            <div className="mt-3" style={{ color: "red" }}>
+              <label>
+                <input
+                  type="radio"
+                  value={false}
+                  name="resumeOption"
+                  onChange={handleRadioChange}
+                />
+                Use existing resume
+              </label>
+              {"     "}
 
-                        <label style={{ left: "20px", position: "relative" }}>
-                          <input
-                            type="radio"
-                            value={true}
-                            name="resumeOption"
-                            onChange={handleRadioChange}
-                          />
-                          Upload new resume
-                        </label>
-                      </div>
-                      {newResume ? (
-                        <>
-                          <input
-                            type="file"
-                            className="form-control w-100 mt-3"
-                            accept=".pdf,.doc,.docx"
-                            onChange={handleFileChange}
-                            required
-                          />
-                          <button
-                            onClick={handleUpload}
-                            className="btn btn-success"
-                          >
-                            Upload
-                          </button>
-                          {uploadedFilename && (
-                            <p style={{ color: "#700c93" }}>
-                              File uploaded: {uploadedFilename}
-                            </p>
-                          )}
-                        </>
-                      ) : (
-                        <p style={{ color: "green" }}>{userData?.resume}</p>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-              {activeStep === 1 && (
-                <>
-                  <div className="row mt-5">
-                    <div className="col-md-6">
-                      <p>Your current CTC</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="current_ctc"
-                        value={formData.current_ctc}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Expected CTC</p>
-                      <textarea
-                        type="text"
-                        className="form-control"
-                        name="expected_ctc"
-                        value={formData.expected_ctc}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Your Notice Period</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="notice_period"
-                        value={formData.notice_period}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Available dates for Interview</p>
-                      <textarea
-                        type="text"
-                        className="form-control"
-                        name="available_dates"
-                        value={formData.available_dates}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Will you able to relocate</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="relocate"
-                        value={formData.relocate}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <p>Linkedin url / Github Link</p>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="profile_link"
-                        value={formData.profile_link}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
+              <label style={{ left: "20px", position: "relative" }}>
+                <input
+                  type="radio"
+                  value={true}
+                  name="resumeOption"
+                  onChange={handleRadioChange}
+                />
+                Upload new resume
+              </label>
+            </div>
+            {newResume ? (
+              <>
+                <input
+                  type="file"
+                  className="form-control w-100 mt-3"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  required
+                />
+                <button
+                  onClick={handleUpload}
+                  className="btn btn-success"
+                >
+                  Upload
+                </button>
+                {uploadedFilename && (
+                  <p style={{ color: "#700c93" }}>
+                    File uploaded: {uploadedFilename}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p style={{ color: "green" }}>{userData?.resume}</p>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  )}
+
+{activeStep === 1 && (
+  // Step 2 UI
+  <div style={{ height: "500px" }}>
+    <br/>
+    <Typography variant="h4">Step 2: Matched Skills and Score</Typography>
+    {loading ? (
+      <p>Loading...</p>
+    ) : (
+      <div>
+        <br />
+        <br />
+        <Typography variant="body1" style={{ color: "#700c93", fontSize: "2em" }}>Job Skills:</Typography>
+        <div>
+          {jobSkills.split(',').map((skill, index) => (
+            <Chip
+              key={index}
+              label={skill.trim()} // Trim to remove any leading or trailing spaces
+              variant="outlined"
+              style={{ marginRight: '10px', marginBottom: '10px', backgroundColor: '#2196F3', color: '#ffffff' }}
+            />
+          ))}
+        </div>
+        <br />
+        <Typography variant="body1" style={{ color: "#700c93", fontSize: "2em" }}>Matched Skills:</Typography>
+        <div>
+          {matchedSkills.map((skill, index) => (
+            <Chip
+              key={index}
+              label={skill}
+              variant="outlined"
+              style={{ marginRight: '10px', marginBottom: '10px', backgroundColor: '#E91E63', color: '#ffffff' }}
+            />
+          ))}
+        </div>
+        <br />
+        <Typography variant="body1" style={{ color: "#700c93", fontSize: "2em" }}>Matched Score: {matchedScore.toFixed(2)}%</Typography>
+      </div>
+    )}
+  </div>
+)}
+
               {activeStep === steps.indexOf('Quiz') && (
                 // Render QuizComponent
-                <QuizComponent passScore={setQuizScore} setQuizCompleted={setQuizCompleted} />
+                <QuizComponent passScore={setQuizScore} setQuizCompleted={setQuizCompleted} matchedScore={matchedScore}
+                matchedSkills={matchedSkills} />
               )}
               {activeStep !== steps.indexOf('Quiz') && activeStep !== 0 && (
               <Button

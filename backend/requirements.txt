@@ -1,9 +1,0 @@
-PyPDF2 
-docx2txt 
-flair==0.10
-pdfplumber
-PyMuPDF
-scikit-learn
-transformers 
-torch
-pandas

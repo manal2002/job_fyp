@@ -4,9 +4,11 @@ const {
   getJobDetails,
   uploadResume,
   applyJob,
-  getMyJobs,
+  myJobs,
   editProfile,
   getProfile,
+  getResume,
+  postResume,
 } = require("../../controllers/candidate/candidateController");
 const { data } = require("../../data");
 
@@ -96,45 +98,75 @@ candidateRouter.post("/apply-job", (req, res) => {
   });
 });
 
-// candidateRouter.post("/get-resume", (req, res) => {
-//   // Extract data from the request body
-//   const { jobId, userId, formData } = req.body;
-
-//   // Log the received data (for testing)
-//   console.log("Step 1 data received:", { jobId, userId, formData });
-
-//   // Process the step 1 data as needed (e.g., save it to the database)
-
-//   // Send a response back to the client
-//   res.status(200).json({ success: true, message: "Step 1 data received successfully" });
-// });
-
-candidateRouter.post("/get-resume", (req, res) => {
+candidateRouter.post("/post-resume", async (req, res) => {
   try {
-    // Extract data from the request body
-    const {resume, resumeFileName, jobId, userId } = req.body;
+    const { jobId, userId, formData } = req.body;
+    console.log("Step 1 data received:", { jobId, userId, formData });
 
-    // Log the received data (for testing)
-    console.log("Data received:", {resume, resumeFileName, jobId, userId });
+    // Call the postResume function to handle resume posting
+    const postResumeResult = await postResume(req.body);
 
-    // Process the received data as needed (e.g., save it to the database)
-
-    // Send a success response back to the client
-    res.status(200).json({ success: true, message: "Resume data received successfully" });
+    // Send the response based on the result of posting the resume
+    res.status(200).json(postResumeResult);
   } catch (error) {
-    // If an error occurs, send an error response back to the client
-    console.error("Error handling request:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Error posting resume:", error);
+    res.status(500).json({ success: false, message: "Error posting resume", error: error.message });
   }
 });
 
 
+// Route to fetch resume data based on userId and jobId
+// candidateRouter.get("/get-resume/:userId/:jobId", async (req, res) => {
+//   try {
+//     const userId = req.params.userId;
+//     const jobId = req.params.jobId;
+
+//     // Call the controller function to get resume data
+//     const resumeData = await getResume(userId, jobId);
+
+//     // Send the resume data as response
+//     res.status(200).json(resumeData);
+//   } catch (error) {
+//     console.error("Error fetching resume:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
+candidateRouter.get("/get-resume/:userId/:jobId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const jobId = req.params.jobId;
+
+    // Call the controller function to get resume data
+    const resumeData = await getResume(userId, jobId);
+
+    // Send the resume data as response
+    res.status(200).json(resumeData);
+  } catch (error) {
+    console.error("Error fetching resume:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 candidateRouter.get("/my-jobs/:id", (req, res) => {
-  getMyJobs(req.params.id).then((result) => {
-    res.send(result);
-  });
+  const userId = req.params.id;
+  myJobs(userId)
+    .then((result) => {
+      console.log("myJobs result:", result);
+      res.send(result);
+    })
+    .catch((error) => {
+      console.error("Error calling myJobs:", error);
+      res.status(500).send({ success: false, message: "Internal Server Error" });
+    });
 });
+
+// candidateRouter.get("/my-jobs/:id", (req, res) => {
+//   myJobs(req.params.id).then((result) => {
+//     res.send(result);
+//   });
+// });
 
 // candidateRouter.post("/apply-job", async (req, res) => {
 //   try {
@@ -180,3 +212,4 @@ candidateRouter.get("/profile/:id", (req, res) => {
 // });
 
 module.exports = candidateRouter;
+

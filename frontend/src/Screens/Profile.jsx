@@ -10,6 +10,9 @@ import Loader from "../Components/Loader";
 import EditIcon from "@mui/icons-material/Edit";
 import JobSeekerSidebar from "../Components/Sidebar/Jobseekersidebar";
 
+
+
+
 function Profile() {
   const { id } = useParams();
   const [userData, setUserData] = useState(null);

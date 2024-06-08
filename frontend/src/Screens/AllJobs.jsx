@@ -36,10 +36,14 @@ function AllJobs() {
           setJobs(res?.data?.data);
         }
       };
+      
+      console.log("OpenAI API Key:", process.env.REACT_APP_OPENAI_API_KEY);
+
       fetchData();
     } catch (error) {
       setError(true);
     }
+
   }, []);
 
   const handleSearch = async () => {

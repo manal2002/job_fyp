@@ -1,0 +1,41 @@
+# Log files
+logs
+*.log
+
+# Environment variables
+.env
+
+# Dependency directories
+/node_modules/
+/venv/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# General temporary files
+*.tmp
+*.temp
+*.cache
+
+# IDE-specific directories
+.vscode/
+.idea/
+
+# Build outputs
+/build/
+/dist/
+
+# Coverage directory used by testing tools
+/coverage/
+
+# npm and yarn directories
+.npm
+.yarn
+.yarnrc
+
+# Output of 'npm pack'
+*.tgz
+
+# dotenv files
+*.env

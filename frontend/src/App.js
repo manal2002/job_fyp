@@ -17,6 +17,8 @@ import EditProfile from "./Screens/candidate/EditProfile";
 import InterviewScreen from "./Screens/candidate/InterviewScreen";
 
 function App() {
+  console.log("OpenAI API Key:", process.env.REACT_APP_OPENAI_API_KEY);
+
   return (
     <BrowserRouter>
       <div>
