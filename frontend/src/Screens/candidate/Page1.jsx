@@ -14,10 +14,8 @@ function Page1() {
         </div>
         <div className="col-md-6">
           <p>
-            In publishing and graphic design, Lorem ipsum is a placeholder text
-            commonly used to demonstrate the visual form of a document or a
-            typeface without relying on meaningful content. Lorem ipsum may be
-            used as a placeholder before final copy is available.
+          "Ready to streamline your candidate evaluation process? 
+           Sign up now and experience the difference!"
           </p>
         </div>
       </div>
@@ -31,9 +29,8 @@ function Page1() {
                 </div>
                 <h5 className="mt-3">Register</h5>
                 <p style={{textAlign:"left"}}>
-                  In publishing and graphic design, Lorem ipsum is a placeholder
-                  text commonly used to demonstrate the visual form of a
-                  document or a typeface without relying on meaningful content.
+               "Join the Job Connect Community: 
+                Sign up now to start revolutionizing your recruitment processes!"
                 </p>
               </div>
             </div>
@@ -46,9 +43,8 @@ function Page1() {
                 </div>
                 <h5 className="mt-3">Update Profile</h5>
                 <p style={{textAlign:"left"}}>
-                  In publishing and graphic design, Lorem ipsum is a placeholder
-                  text commonly used to demonstrate the visual form of a
-                  document or a typeface without relying on meaningful content.
+                Keep it current. Enhance your experience by providing the latest details about your
+                skills and qualifications. Stay ahead with an up-to-date profile on Job Connect"
                 </p>
               </div>
             </div>
@@ -61,9 +57,8 @@ function Page1() {
                 </div>
                 <h5 className="mt-3">Select Job</h5>
                 <p style={{textAlign:"left"}}>
-                  In publishing and graphic design, Lorem ipsum is a placeholder
-                  text commonly used to demonstrate the visual form of a
-                  document or a typeface without relying on meaningful content.
+                Discover opportunities tailored to your skills and aspirations. 
+                Explore our comprehensive job listings and find the perfect fit for your career path."
                 </p>
               </div>
             </div>
@@ -76,9 +71,8 @@ function Page1() {
                 </div>
                 <h5 className="mt-3">Apply Job</h5>
                 <p style={{textAlign:"left"}}>
-                  In publishing and graphic design, Lorem ipsum is a placeholder
-                  text commonly used to demonstrate the visual form of a
-                  document or a typeface without relying on meaningful content.
+                 Seize the opportunity.
+                 Submit your application effortlessly and take the first step towards your dream job."
                 </p>
               </div>
             </div>
@@ -89,4 +83,4 @@ function Page1() {
   );
 }
 
-export default Page1;
+export default Page1;

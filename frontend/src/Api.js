@@ -5,6 +5,8 @@ const urls = {
   jobDetail: `api/candidate/job`,
   uploadResume: `api/candidate/upload-resume`,
   applyJob: `api/candidate/apply-job`,
+  postResume: `api/candidate/post-resume`,
+  getResume: `api/candidate/get-resume`,
   myJobs: `api/candidate/my-jobs`,
   editProfile: `api/candidate/edit-profile`,
   getProfile: `api/candidate/profile`,
@@ -17,6 +19,8 @@ const urls = {
   // Company routes
   postJob: `api/company/add-job`,
   postedJobs: `api/company/my-jobs`,
+  openResume: `api/company/open-resume`,
+
   // end Company routes
 };
 
@@ -26,6 +30,8 @@ const API_ENDPOINTS = {
   uploadResume: `${BASE_URL}/${urls.uploadResume}`,
   downloadResume: `${BASE_URL}/${urls.downloadResume}`,
   applyJob: `${BASE_URL}/${urls.applyJob}`,
+  postResume: `${BASE_URL}/${urls.postResume}`,
+  getResume: `${BASE_URL}/${urls.getResume}`,
   myJobs: `${BASE_URL}/${urls.myJobs}`,
   editProfile: `${BASE_URL}/${urls.editProfile}`,
   getProfile: `${BASE_URL}/${urls.getProfile}`,
@@ -37,6 +43,8 @@ const API_ENDPOINTS = {
   // Company routes
   postJob: `${BASE_URL}/${urls.postJob}`,
   postedJobs: `${BASE_URL}/${urls.postedJobs}`,
+  openResume: `${BASE_URL}/${urls.downloadResume}`,
+
   // End company routes
 };
 

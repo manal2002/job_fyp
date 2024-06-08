@@ -14,8 +14,8 @@ function LandingPage() {
             <div className="container">
               <div className="title mt-5">
                 <h2>
-                  Its Easy to find your
-                  <span>Dream Job</span>
+                  Find your dream Job with
+                  <span> Job Connect</span>
                 </h2>
               </div>
               <div>
@@ -50,12 +50,10 @@ function LandingPage() {
             <div className="col-md-4">
               <div>
                 <h4 style={{ fontWeight: "600" }}>
-                  Find full time , part time and remote job.
+                  Recruitement made easy through Job Connect!
                 </h4>
                 <br />
-                <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                  <TotalAvatars />
-                </div>
+                
               </div>
             </div>
             <div className="col-md-4">
@@ -63,19 +61,19 @@ function LandingPage() {
                 <div className="col-md-4">
                   <div>
                     <h3>Live Jobs</h3>
-                    <h6 style={{ color: "orange" }}>25000</h6>
+                    <h6 style={{ color: "#800080" }}>25000</h6>
                   </div>
                 </div>
                 <div className="col-md-4">
                   <div>
                     <h3>Daily Job post</h3>
-                    <h6 style={{ color: "darkcyan" }}>4000+</h6>
+                    <h6 style={{ color: "#800080" }}>4000+</h6>
                   </div>
                 </div>
                 <div className="col-md-4">
                   <div>
                     <h3>Active Companies</h3>
-                    <h6 style={{ color: "green" }}>1 Lakh</h6>
+                    <h6 style={{ color: "#800080" }}>1 Lakh</h6>
                   </div>
                 </div>
               </div>
@@ -90,39 +88,28 @@ function LandingPage() {
 
         <div className="advDiv">
           <h4>
-            Find the Talent needed <br /> to get your Business growing
+          "Elevating Recruitment, Empowering Careers with Job Connect." <br /> 
           </h4>
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY7SBE57Fhwae1H6ViP378GsJGzvDULrFz4w&usqp=CAU" />
+         
         </div>
         <section>
           <div className="container mt-5">
             <div className="row">
               <div className="col-md-6">
                 <div>
-                  <img
-                    src="https://st.depositphotos.com/1144472/1971/i/450/depositphotos_19714321-stock-photo-young-happy-smiling-business-man.jpg"
-                    className="w-100"
-                  />
+                  
                 </div>
               </div>
               <div className="col-md-6 mt-5">
-                <h2>Our service to provide your career grows</h2>
+                <h2>What does Job Connect do?</h2>
                 <div className="mt-4">
                   <p>
-                    Contrary to popular belief, Lorem Ipsum is not simply random
-                    text. It has roots in a piece of classical Latin literature
-                    from 45 BC, making it over 2000 years old. Richard
-                    McClintock, a Latin professor at Hampden-Sydney College in
-                    Virginia, looked up one of the more obscure Latin words,
-                    consectetur, from a Lorem Ipsum passage, and going through
-                    the cites of the word in classical literature, discovered
-                    the undoubtable source. Lorem Ipsum comes from sections
-                    1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The
-                    Extremes of Good and Evil) by Cicero, written in 45 BC. This
-                    book is a treatise on the theory of ethics, very popular
-                    during the Renaissance. The first line of Lorem Ipsum,
-                    "Lorem ipsum dolor sit amet..", comes from a line in section
-                    1.10.32.
+                  "Job Connect revolutionizes the candidate evaluation process for recruitment processes.
+                   Our sophisticated web application employs advanced NLP techniques to extract skills from candidate CVs 
+                   and match them with job descriptions. Personalized quizzes are generated based on identified competencies, 
+                   allowing for efficient evaluation. Through our platform, employers can rank candidates effectively,
+                   ensuring a streamlined and insightful recruitment process. Whether you're a job seeker or an organization,
+                   Job Connect provides the tools to enhance hiring decisions and propel career advancements."
                   </p>
                 </div>
               </div>
@@ -130,7 +117,7 @@ function LandingPage() {
           </div>
         </section>
         <section className="container">
-          <h2>Browser Talent By Category</h2>
+          <h2>Find the Talent you need with Job Connect</h2>
           <div className="row">
             <div className="col-md-3 col-12">
               <div className="card p-4">
@@ -165,7 +152,7 @@ function LandingPage() {
                   src="data:image/png;base64,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"
                   className="w-100"
                 />
-                <h3 className="mt-3">Embedded Programming</h3>
+                <h3 className="mt-3">Programming</h3>
               </div>
             </div>
           </div>
@@ -176,4 +163,4 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+export default LandingPage;

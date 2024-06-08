@@ -1,6 +1,6 @@
 .site-footer
 {
-  background-color:#0d4f4c;
+  background-color:#800080;
   padding:45px 0 20px;
   font-size:15px;
   line-height:24px;
@@ -25,7 +25,7 @@
 }
 .site-footer a
 {
-  color:#0d4f17;
+  color:#800080;
 }
 .site-footer a:hover
 {
@@ -159,5 +159,5 @@
     display:block;
     margin-right:0;
     font-weight:600
-  }
+  }
 }

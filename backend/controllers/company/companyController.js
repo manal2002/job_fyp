@@ -128,6 +128,44 @@
 //   }
 // };
 
+  // Function to get jobs posted by the company along with applied candidates
+  // getMyJobs: () => {
+  //   return new Promise((resolve, reject) => {
+  //     Jobs.find()
+  //       .then(async (jobs) => {
+  //         console.log("Jobs fetched:", jobs);
+  //         const jobDetails = await Promise.all(jobs.map(async (job) => {
+  //           try {
+  //             const appliedJobs = await AppliedJobs.find({ jobId: job._id })
+  //               .populate({
+  //                 path: 'appliedUsers',
+  //                 model: 'User',
+  //                 select: 'firstName lastName email contact resume' // Only select necessary fields
+  //               });
+              
+  //             const appliedCandidates = appliedJobs.map(appliedJob => appliedJob.appliedUsers).flat();
+  //             console.log("Applied candidates for job", job._id, ":", appliedCandidates);
+              
+  //             return {
+  //               ...job.toObject(),
+  //               appliedCandidates,
+  //             };
+  //           } catch (error) {
+  //             console.error("Error fetching applied candidates for job", job._id, ":", error);
+  //             return null; // Return null if an error occurs
+  //           }
+  //         }));
+
+  //         console.log("Jobs fetched successfully:", jobDetails);
+  //         resolve(successResponse("Jobs fetched successfully", jobDetails));
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching jobs:", error);
+  //         reject(errorResponse("Error fetching jobs", error));
+  //       });
+  //   });
+  // },
+
 
 const Jobs = require("../../models/jobModal");
 const AppliedJobs = require("../../models/appliedJobs");
@@ -151,24 +189,30 @@ module.exports = {
     });
   },
 
-  // Function to get jobs posted by the company along with applied candidates
+
+
   getMyJobs: () => {
     return new Promise((resolve, reject) => {
       Jobs.find()
         .then(async (jobs) => {
-          console.log("Jobs fetched:", jobs);
+          //console.log("Jobs fetched:", jobs);
           const jobDetails = await Promise.all(jobs.map(async (job) => {
             try {
               const appliedJobs = await AppliedJobs.find({ jobId: job._id })
-                .populate({
-                  path: 'appliedUsers',
-                  model: 'User',
-                  select: 'firstName lastName email contact resume' // Only select necessary fields
-                });
-              
+              .populate({
+                path: 'appliedUsers.user', // Populate the 'user' field of 'appliedUsers'
+                model: 'User',
+                select: 'firstName lastName email resume', // Select necessary fields from User model
+              })
+              .populate({
+                path: 'appliedUsers', // Populate the 'quizScore' field of 'appliedUsers'
+                model: 'AppliedJobs',
+                select: 'quizScore', // Select the quizScore field
+              })
+  
               const appliedCandidates = appliedJobs.map(appliedJob => appliedJob.appliedUsers).flat();
               console.log("Applied candidates for job", job._id, ":", appliedCandidates);
-              
+  
               return {
                 ...job.toObject(),
                 appliedCandidates,
@@ -178,8 +222,8 @@ module.exports = {
               return null; // Return null if an error occurs
             }
           }));
-
-          console.log("Jobs fetched successfully:", jobDetails);
+  
+          //console.log("Jobs fetched successfully:", jobDetails);
           resolve(successResponse("Jobs fetched successfully", jobDetails));
         })
         .catch((error) => {
@@ -189,5 +233,70 @@ module.exports = {
     });
   },
 
-  // Additional controller methods as needed
+  openResume: async (req, res) => {
+    try {
+      const { userId, resumeFilename } = req.params;
+
+      console.log("UserID:", userId);
+      console.log("Resume filename:", resumeFilename);
+
+      // Find the user by userId
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Check if the resumeFilename matches the user's resume
+      if (user.resume !== resumeFilename) {
+        return res.status(404).json({ message: 'Resume not found' });
+      }
+
+      // Construct the path to the resume file
+      const filePath = path.join(__dirname, '..', '..', 'uploads', resumeFilename);
+
+      // Send the resume file as a download
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error('Error sending resume:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+
+  getJobStatistics: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalJobs = await Jobs.countDocuments({});
+        const activeJobs = await Jobs.countDocuments({ status: "active" });
+        const closedJobs = await Jobs.countDocuments({ status: "closed" });
+
+        const appliedCandidatesAggregate = await AppliedJobs.aggregate([
+          { $unwind: "$appliedUsers" },
+          { $count: "totalAppliedUsers" }
+        ]);
+
+        const appliedCandidates = appliedCandidatesAggregate[0] ? appliedCandidatesAggregate[0].totalAppliedUsers : 0;
+
+        console.log({
+          totalJobs,
+          activeJobs,
+          closedJobs,
+          appliedCandidates
+        });
+
+        const statistics = {
+          totalJobs,
+          activeJobs,
+          closedJobs,
+          appliedCandidates
+        };
+
+        resolve(successResponse("Job statistics fetched successfully", statistics));
+      } catch (error) {
+        console.error("Error fetching job statistics:", error);
+        reject(errorResponse("Error fetching job statistics", error));
+      }
+    });
+  },
+
 };

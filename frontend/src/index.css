@@ -14,7 +14,7 @@ ul li {
   list-style: none;
 }
 header{
-  background-color: #669371;
+  background-color: #800080;
   top: 0px;
   position: fixed;
   width: 100%;
@@ -36,7 +36,7 @@ div.landing-page-container{
   text-align: center;
 }
 .title span{
-  color: darkcyan;
+  color: #800080;
   font-size: 60px;
 }
 p.about-desc{
@@ -48,7 +48,7 @@ p.about-desc{
   position: relative; */
 }
 button.exploreBtn{
-  background-color: darkcyan;
+  background-color: #800080;
   border: none;
   outline: none;
   padding: 14px;
@@ -71,7 +71,7 @@ button.exploreBtn{
 }
 .loginBtn{
   border: none;
-  background-color: darkcyan;
+  background-color: #800080;
   padding: 8px;
   color: white;
   border-radius: 20px;
@@ -103,13 +103,13 @@ button.exploreBtn{
   font-weight: 600;
   left: 10px;
   position: relative;
-  color: darkcyan;
+  color: #800080;
   font-size: 40px;
 }
 .login-screen input{
   width: 70%;
   border: none;
-  border-bottom: 3px solid darkcyan;
+  border-bottom: 3px solid #800080;
   outline: none;
   background-color: white;
   padding: 7px;
@@ -128,12 +128,12 @@ button.exploreBtn{
   padding: 9px;
   border: none;
   outline: none;
-  background-color: darkcyan;
+  background-color: #800080;
   color: white;
   border-radius: 40px;
 }
 .login-screen h2{
-  color: darkcyan;
+  color: #800080;
   font-weight: bold;
 }
 .login-screen select{
@@ -289,7 +289,7 @@ section p {
 }
 .advDiv{
   height: 350px;
-  background-color:darkcyan;
+  background-color:#800080;
   display: flex;
   justify-content: space-around;
   /* justify-content: center; */
@@ -304,7 +304,7 @@ section p {
 
 .fa-search{
   font-size: 20px;
-  color: #367536;
+  color: #800080;
   top: -27px;
   left: -5px;
   position: relative;
@@ -487,7 +487,7 @@ main{
   justify-content: flex-start;
 }
 .mu-icon{
-  color: darkcyan;
+  color: #800080;
   font-size: 35px;
  
   
@@ -515,7 +515,7 @@ div.icon-box{
   height: 40px;
 }
 .searchBtn{
-  background-color: darkcyan;
+  background-color: #800080;
   color: white;
   width: 150px;
   border: none;
@@ -541,5 +541,5 @@ div.MuiBox-root{
   color: white;
 }
 .job-details-page h5{
-  font-weight: 600;
+  font-weight: 600;
 }

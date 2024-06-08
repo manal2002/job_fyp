@@ -1,0 +1,42 @@
+/* JobDetail.css */
+.job-detail-container {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .job-detail-title {
+    color: #6200ee;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  
+  .company-details,
+  .requirements-skills {
+    margin-top: 30px;
+  }
+  
+  .social-media-links {
+    margin-top: 20px;
+    font-style: italic;
+  }
+  
+  .grid-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .icon {
+    margin-right: 10px;
+  }
+  
+  .deadline-info {
+    font-style: italic;
+  }
+  
+  .job-detail-card {
+    margin-bottom: 30px;
+  }
+  

@@ -1,2 +1,46 @@
+# Node.js dependencies
+node_modules/
+
+# Python virtual environment
+venv/
+
+# Log files
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
 .env
-node_modules
+
+# Build outputs
+build/
+dist/
+
+# Cache and temporary files
+*.tmp
+*.temp
+*.cache
+
+# IDE-specific directories
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Coverage directory used by testing tools
+coverage/
+
+# eslint cache
+.eslintcache
+
+# Optional npm cache directory
+.npm
+.yarn
+.yarnrc
+
+# Output of 'npm pack'
+*.tgz
